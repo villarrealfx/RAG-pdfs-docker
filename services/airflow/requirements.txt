@@ -1,0 +1,9 @@
+# Dependencias específicas de Airflow
+apache-airflow-providers-docker
+apache-airflow-providers-http
+apache-airflow-providers-postgres
+
+
+# Dependencias comunes útiles para tareas de Airflow
+requests
+tenacity
