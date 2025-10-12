@@ -4,6 +4,16 @@ from fastembed.rerank.cross_encoder import TextCrossEncoder
 
 logger = logging.getLogger(__name__)
 
+logger.info("🔄 Inicializando TextCrossEncoder...")
+
+try:
+    model_name = "Xenova/ms-marco-MiniLM-L-6-v2"
+    reranker = TextCrossEncoder(model_name=model_name)
+    logger.info(f"✅ DocumentReranker inicializado con modelo: {model_name}")
+except Exception as e:
+    logger.error(f"❌ Error inicializando reranker: {e}")
+    raise
+
 class DocumentReranker:
     """Sistema de reclasificación de documentos para mejorar relevancia"""
     
@@ -14,12 +24,16 @@ class DocumentReranker:
         Args:
             model_name: Nombre del modelo de reranking
         """
-        try:
-            self.reranker = TextCrossEncoder(model_name=model_name)
-            logger.info(f"✅ DocumentReranker inicializado con modelo: {model_name}")
-        except Exception as e:
-            logger.error(f"❌ Error inicializando reranker: {e}")
-            raise
+        if not reranker:
+            try:
+                self.reranker = TextCrossEncoder(model_name=model_name)
+                logger.info(f"✅ DocumentReranker inicializado con modelo: {model_name}")
+            except Exception as e:
+                logger.error(f"❌ Error inicializando reranker: {e}")
+                raise
+
+        self.reranker = reranker
+        
     
     def rerank(self, query: str, documents: List[Dict], top_k: int = 5) -> List[Dict]:
         """

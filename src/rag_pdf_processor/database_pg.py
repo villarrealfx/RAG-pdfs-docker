@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 logger = logging.getLogger(__name__)
 
 class QdrantVectorStore:
-    def __init__(self, host: str = "localhost", port: int = 6333):
+    def __init__(self, host: str = "qdrant", port: int = 6333):
         try:
             self.client = QdrantClient(
                 host=host, 

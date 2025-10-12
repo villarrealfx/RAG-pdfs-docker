@@ -93,7 +93,7 @@ class LLMInterface:
 
             # Construir contexto (en inglés, porque la KB es en inglés)
             context = "\n".join([
-                f"Document: {chunk['book_name']} - {chunk['chapter']}\nContent: {chunk['content']}"
+                f"Document: {chunk['source_document']} \nContent: {chunk['content']}"
                 for chunk in context_chunks
             ])
 

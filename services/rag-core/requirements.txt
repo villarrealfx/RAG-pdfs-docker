@@ -25,3 +25,4 @@ sqlalchemy==2.0.43
 # SQLAlchemy==1.4.54 << Instalado por Airflow
 tenacity==9.1.2
 uvicorn==0.35.0
+python-dotenv==1.1.0

@@ -210,6 +210,7 @@ def create_feedback_table():
         llm_response TEXT NOT NULL,             -- La respuesta generada por el LLM
         chunk_ids TEXT,                         -- IDs de chunks como cadena separada por comas
         rating INTEGER CHECK (rating >= 1 AND rating <= 5), -- Puntuación del usuario (1-5 estrellas)
+        comment TEXT,                           -- Comentario adicional del usuario
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Fecha y hora del feedback
     );
     """

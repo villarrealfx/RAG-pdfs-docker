@@ -166,7 +166,7 @@ if (st.session_state.last_query and st.session_state.last_response and
             key="feedback_rating_widget"
         )
 
-        submitted = st.form_submit_button("Enviar Evaluación", key="submit_feedback_btn")
+        submitted = st.form_submit_button("Enviar Evaluación")
         
         if submitted:
             if st.session_state.feedback_rating is not None:

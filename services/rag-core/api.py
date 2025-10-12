@@ -157,16 +157,11 @@ def save_feedback_to_db(query, llm_response, chunk_ids, rating):
     feedback_id = hashlib.sha256(f"{query}{time.time()}".encode()).hexdigest()[:12]
 
     query = """
-        INSERT INTO feedback (feedback_id, query, llm_response, chunk_ids, evaluation)
+        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, rating)
         VALUES (%s, %s, %s, %s, %s)
         """
 
     params = (feedback_id, query, llm_response, chunk_ids, rating)
-
-    insert_query = """
-        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, evaluation)
-        VALUES (%s, %s, %s, %s, %s)
-    """
 
     result = execute_query(user = 'appuser', query=query, fetch=False, params=params)
 
@@ -295,8 +290,17 @@ async def submit_feedback_endpoint(feedback_data: FeedbackInput):
     **Endpoint 6: Almacenamiento de Feedback**
     Guarda la evaluación del usuario en PostgreSQL.
     """
+
+    query = feedback_data.query
+    llm_response = feedback_data.LLM_response
+    chunk_ids = ", ".join(map(str, feedback_data.chunk_ids))
+    rating = feedback_data.evaluation
+    comment = feedback_data.comment
+   
+    print(f'chunk_ids: {chunk_ids}')
+
     try:
-        feedback_id = save_feedback_to_db(feedback_data)
+        feedback_id = save_feedback_to_db(query=query, llm_response=llm_response, chunk_ids=chunk_ids, rating=rating)
         return FeedbackResult(feedback_id=feedback_id)
     except Exception as e:
         print(f"ERROR: Fallo al guardar el feedback: {e}")

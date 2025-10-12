@@ -199,6 +199,11 @@ def move_file_to_processed(path_file, path_processed):
 def process_single_document(path_file, path_file_clean, hash_file):
     """Procesa un solo documento PDF"""
     
+
+    logger.info(f"path_file: {path_file}")
+    logger.info(f"path_file_clean: {path_file_clean}")
+    logger.info(f"hash_file: {hash_file}")
+
     try:
         logger.info(f"🔄 Procesando: {os.path.basename(path_file)}")
         
@@ -253,17 +258,17 @@ def process_single_document(path_file, path_file_clean, hash_file):
     except Exception as e:
         logger.error(f"❌ Error procesando {os.path.basename(path_file)}: {e}") 
         # Guardar error en metadata
-        try:
-            save_processing_metadata(
-                PG_CONNECTION, 
-                path_file, 
-                os.path.basename(path_file), 
-                hash_file, 
-                successfully_processed=False, 
-                error_message=str(e)
-            )
-        except:
-            pass
+        # try:
+        #     save_processing_metadata(
+        #         PG_CONNECTION, 
+        #         path_file, 
+        #         os.path.basename(path_file), 
+        #         hash_file, 
+        #         successfully_processed=False, 
+        #         error_message=str(e)
+        #     )
+        # except:
+        #     pass
         return False
 
 if __name__ == "__main__":
