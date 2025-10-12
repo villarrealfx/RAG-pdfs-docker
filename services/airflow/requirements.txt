@@ -7,4 +7,4 @@ apache-airflow-providers-postgres
 # Dependencias comunes útiles para tareas de Airflow
 requests
 tenacity
-python-dotenv==1.1.0
+python-dotenv==1.1.1

@@ -42,7 +42,6 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/services/airflow/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/services/airflow/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/services/airflow/plugins:/opt/airflow/plugins
-    - ${AIRFLOW_PROJ_DIR:-.}/sdm_manuals:/opt/airflow/sdm_manuals
 
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -80,11 +79,9 @@ services:
       POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
       POSTGRES_DB: ${APP_DB_NAME}
     volumes:
-      # Monta scripts de inicialización si los tienes
-      # - ./init-scripts-app:/docker-entrypoint-initdb.d
       - postgres_app_volume:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U userapp -d processed_documents"]
+      test: ["CMD-SHELL", "pg_isready -U appuser -d processed_documents"]
       interval: 10s
       retries: 5
       start_period: 5s
