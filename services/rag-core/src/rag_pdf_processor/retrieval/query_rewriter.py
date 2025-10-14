@@ -104,3 +104,61 @@ class QueryRewriter:
         except Exception as e:
             logger.error(f"❌ Error expandiendo la consulta '{original_query}': {e}")
             return original_query
+        
+    # En la clase QueryRewriter
+
+    def expand_query_multiple(self, original_query: str, num_queries: int = 3) -> List[str]:
+        """
+        Expande la consulta original en múltiples variantes usando el LLM.
+
+        Args:
+            original_query: La consulta original del usuario.
+            num_queries: Número de variantes a generar (por defecto 3).
+
+        Returns:
+            Una lista de consultas expandidas.
+        """
+        try:
+            logger.debug(f"🔄 Expandiendo consulta en {num_queries} variantes: '{original_query}'")
+
+            system_prompt = f"""
+            You are a helpful assistant that generates multiple search queries based on a single input query.
+
+            Perform query expansion. If there are multiple common ways of phrasing a user question
+            or common synonyms for key words in the question, make sure to return multiple versions
+            of the query with the different phrasings.
+
+            If there are acronyms or words you are not familiar with, do not try to rephrase them.
+
+            Return exactly {num_queries} different versions of the question, each on a new line.
+            Do not number them or add extra text, just the queries.
+            """
+
+            user_prompt = original_query
+
+            # Llamar al LLM para generar las consultas
+            response_text = self.llm_interface.generate_response(
+                query=user_prompt,
+                context_chunks=[],
+                max_tokens=200, # Ajusta según sea necesario
+                system_prompt_override=system_prompt
+            )
+
+            # Separar por saltos de línea y limpiar
+            queries = [q.strip() for q in response_text.split('\n') if q.strip()]
+
+            # Asegurarse de devolver al menos la original si no hay resultados válidos
+            if not queries or all(q.lower() in ["none", "null"] for q in queries):
+                logger.warning(f"⚠️ El LLM no devolvió consultas válidas. Usando la original: '{original_query}'")
+                return [original_query]
+
+            # Filtrar consultas vacías o inválidas
+            queries = [q for q in queries if q.lower() not in ["none", "null"]]
+
+            logger.debug(f"✅ Consultas expandidas generadas: {queries}")
+            return queries
+
+        except Exception as e:
+            logger.error(f"❌ Error expandiendo la consulta '{original_query}': {e}")
+            # En caso de error, devolver la consulta original como fallback
+            return [original_query]

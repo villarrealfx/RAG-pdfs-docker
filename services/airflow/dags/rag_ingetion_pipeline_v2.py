@@ -50,7 +50,7 @@ dag = DAG(
     'rag_ingestion_api_orchestrator',
     default_args=default_args,
     description='Orquestador para el pipeline de ingesta de documentos RAG vía FastAPI',
-    schedule=None,
+    schedule= None,   # "*/15 * * * *", # "*/15 * * * *""
     start_date=datetime(2025, 1, 1),
     catchup=False,
     max_active_runs=1,

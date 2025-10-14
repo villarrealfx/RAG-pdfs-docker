@@ -48,23 +48,23 @@ logging.basicConfig(level=logging.INFO)
 logger.info("🔄 Inicializando componentes RAG...")
 try:
     vector_store = VectorRetriever(collection_name="chunks-hybrid")
-    print("✅ Vector Store (Qdrant) inicializado.")
+    logger.info("✅ Vector Store (Qdrant) inicializado.")
 except Exception as e:
-    print(f"Error inicializando Vector Store: {e}")
+    logger.error(f"Error inicializando Vector Store: {e}")
     raise
 
 try:
     llm_interface = LLMInterface()
-    print("✅ LLM Interface inicializado.")
+    logger.info("✅ LLM Interface inicializado.")
 except Exception as e:
-    print(f"Error inicializando LLM Interface: {e}")
+    logger.error(f"Error inicializando LLM Interface: {e}")
     raise
 
 try:
     query_rewriter = QueryRewriter(llm_interface)
-    print("✅ Query Rewriter inicializado.")
+    logger.info("✅ Query Rewriter inicializado.")
 except Exception as e:
-    print(f"Error inicializando Query Rewriter: {e}")
+    logger.error(f"Error inicializando Query Rewriter: {e}")
     raise
 
 
@@ -111,6 +111,7 @@ class ProcessingResult(BaseModel):
 class UserQueryInput(BaseModel):
     """Input para el endpoint de consulta RAG."""
     user_query: str = Field(..., description="La pregunta enviada por el usuario.")
+    use_query_rewrite: bool = Field(default=False, description="Si se debe usar la expansión de consulta.")
 
 class RAGChunkMetadata(BaseModel):
     """Metadatos de un chunk extraído para la respuesta."""
@@ -150,18 +151,18 @@ def get_db_config():
         'port': os.getenv('DB_PORT', '5432')
     }
 
-def save_feedback_to_db(query, llm_response, chunk_ids, rating):
+def save_feedback_to_db(query, llm_response, chunk_ids, rating, comment):
 
     """Guarda el feedback del usuario en la base de datos."""
 
     feedback_id = hashlib.sha256(f"{query}{time.time()}".encode()).hexdigest()[:12]
 
     query = """
-        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, rating)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, rating, comment)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """
 
-    params = (feedback_id, query, llm_response, chunk_ids, rating)
+    params = (feedback_id, query, llm_response, chunk_ids, rating, comment)
 
     result = execute_query(user = 'appuser', query=query, fetch=False, params=params)
 
@@ -169,35 +170,86 @@ def save_feedback_to_db(query, llm_response, chunk_ids, rating):
         return feedback_id
     else:
         raise Exception("Failed to save feedback to the database.")
+
+def execute_rag_pipeline_rewriter(user_query: str, query_rewriter: QueryRewriter) -> RAGOutput:
+    """
+    Pipeline RAG: Expand Query, Embed, Search, Rerank, LLM.
+    Devuelve la respuesta del LLM y los metadatos de los chunks.
+    """
+    logger.info(f"\n--- EJECUTANDO RAG PARA: '{user_query}' ---")
+
+    # 1. Expandir la consulta original
+    expanded_queries = query_rewriter.expand_query_multiple(user_query, num_queries=3)
+
+    logger.info(f"🔍 Consultas expandidas: {expanded_queries}")
+
+    # 2. Buscar con cada query expandida y combinar resultados
+    all_chunks = []
+    for query in expanded_queries:
+        chunks = vector_store.hybrid_search_with_rerank(
+            query,
+            limit=5,  # Ajustar si es necesario
+            use_rerank=True
+        )
+        all_chunks.extend(chunks)
+
+    # 3. Eliminar duplicados y ordenar por relevancia (si es necesario)
+    unique_chunks_map = {}
+    for chunk in all_chunks:
+        chunk_id = chunk.get("id")
+        if chunk_id and chunk_id not in unique_chunks_map:
+            unique_chunks_map[chunk_id] = chunk
+
+    unique_chunks = list(unique_chunks_map.values())
+    logger.info(f"total chunks únicos: {len(unique_chunks)}")
+
+    # 4. Ordenar por relevancia por score rerank
+    unique_chunks.sort(key=lambda x: x.get('rerank_score', 0), reverse=True)
+
+    # 5. Limitar a 5 chunks finales, se puede ajustar si es necesario
+    final_chunks = unique_chunks[:5]
+
+    logger.info(f"📦 Chunks combinados y finalizados: {len(final_chunks)}")
+
+    # 6. Crear contexto para LLM
+    context_chunks_for_llm = [
+            {
+                "chunk_id": chunk["id"],
+                "content": chunk["content"],
+                "source_document": f'book: {chunk["book_name"]} - chapter: {chunk["chapter"]}',
+                "relevance_score": chunk["rerank_score"], 
+                "original_score": chunk["original_score"],  
+                "text_preview": chunk["content"][:200] + ("..." if len(chunk["content"]) > 200 else ""),
+                }
+            for chunk in final_chunks
+        ]
+
+    # 7. Generar respuesta con el LLM
+    response = llm_interface.generate_response(
+        query=user_query,  # Usar la pregunta original para el LLM
+        context_chunks=context_chunks_for_llm,
+        max_tokens=500,
+        temperature=0
+    )
+
+    logger.info(f"Respuesta LLM ({len(response)} chars): {response[:150]}{'...' if len(response) > 150 else ''}\n")
+
+    logger.info("--- RAG COMPLETADO ---")
+
+    return RAGOutput(
+        query_used=user_query,
+        llm_response=response,
+        chunks_used=context_chunks_for_llm,
+        llm_model="deepseek-chat"
+    )
     
 def execute_rag_pipeline(user_query: str) -> RAGOutput:
     """
     Pipeline RAG: Embed, Search, Rerank, LLM.
     Devuelve la respuesta del LLM y los metadatos de los chunks.
     """
-    print(f"\n--- EJECUTANDO RAG PARA: '{user_query}' ---")
+    logger.info(f"\n--- EJECUTANDO RAG PARA: '{user_query}' ---")
 
-    # # Inicializar componentes del RAG
-    # try:
-    #     vector_store = VectorRetriever(collection_name="chunks-hybrid")
-    #     print("✅ Vector Store (Qdrant) inicializado.")
-    # except Exception as e:
-    #     print(f"Error inicializando Vector Store: {e}")
-    #     raise
-
-    # try:
-    #     llm_interface = LLMInterface()
-    #     print("✅ LLM Interface inicializado.")
-    # except Exception as e:
-    #     print(f"Error inicializando LLM Interface: {e}")
-    #     raise
-
-    # try:
-    #     query_rewriter = QueryRewriter(llm_interface)
-    #     print("✅ Query Rewriter inicializado.")
-    # except Exception as e:
-    #     print(f"Error inicializando Query Rewriter: {e}")
-    #     raise
 
     chunks_retrieved = vector_store.hybrid_search_with_rerank(  
                         user_query, 
@@ -210,7 +262,7 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
                 "chunk_id": chunk["id"],
                 "content": chunk["content"],
                 "source_document": f'book: {chunk["book_name"]} - chapter: {chunk["chapter"]}',
-                "relevance_score": chunk["score"],  # get("score", 0.0),
+                "relevance_score": chunk["rerank_score"],  # get("score", 0.0),
                 "original_score": chunk["original_score"],  # .get("original_score", 0.0),
                 "text_preview": chunk["content"][:200] + ("..." if len(chunk["content"]) > 200 else ""),
                 }
@@ -227,9 +279,9 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
     
 
     
-    print("--- RAG COMPLETADO ---")
+    logger.info("--- RAG COMPLETADO ---")
 
-    print(f"Respuesta LLM ({len(response)} chars): {response[:300]}{'...' if len(response) > 300 else ''}\n")
+    logger.info(f"Respuesta LLM ({len(response)} chars): {response[:300]}{'...' if len(response) > 300 else ''}\n")
     
     return RAGOutput(
         query_used=user_query,
@@ -238,51 +290,33 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
         llm_model="deepseek-chat"
     )
 
-# --- 7. DEFINICIÓN DE ENDPOINTS DE LA API ---
-
-# Endpoint 1 a 4: Ingesta (Mantenidos)
-
-# @app.get("/scan_folders", response_model=DocumentPaths)
-# async def scan_folders_endpoint(monitored_folders: Optional[str] = None):
-#     folder_list = monitored_folders.split(',') if monitored_folders else None
-#     paths = scan_folders(folder_list)
-#     return DocumentPaths(monitored_folders=folder_list, paths=paths)
-
-# @app.post("/calculate_hashes", response_model=HashOutput)
-# async def calculate_hashes_endpoint(input_data: HashInput):
-#     hashes = calculate_hash_md5(input_data.document_paths)
-#     return HashOutput(hashes=hashes)
-
-# @app.post("/check_processed", response_model=CheckProcessedOutput)
-# async def check_processed_endpoint(input_data: CheckProcessedInput):
-#     unprocessed_tuples = document_already_processed(input_data.hashes)
-#     unprocessed_list = [
-#         UnprocessedDocument(file_path=path, hash_value=hash_val) 
-#         for path, hash_val in unprocessed_tuples
-#     ]
-#     return CheckProcessedOutput(unprocessed_documents=unprocessed_list)
-
-
-# --- ENDPOINT 1: CONSULTA RAG ---
+# --- ENDPOINT 1: CONSULTA RAG (Llamado por frontend) ---
 
 @app.post("/query_rag", response_model=RAGOutput)
 async def query_rag_endpoint(input_data: UserQueryInput):
     """
     **Endpoint: Consulta RAG en Tiempo Real**
-    Ejecuta el pipeline completo de búsqueda, re-ranking, y generación LLM.
+    Ejecuta el pipeline completo: expansión, búsqueda, re-ranking, y generación LLM.
     """
     try:
-        # Aquí se llama a la función que conecta a tus modelos/Qdrant
-        rag_response = execute_rag_pipeline(input_data.user_query)
-        return rag_response
+        # Llamar a la función principal con el rewriter
+        if input_data.use_query_rewrite:
+
+            logger.info("Usando expansión de consulta.")
+            rag_response = execute_rag_pipeline_rewriter(input_data.user_query, query_rewriter)
+            return rag_response
+        else:
+            logger.info("Usando consulta directa.")
+            rag_response = execute_rag_pipeline(input_data.user_query)
+            return rag_response
     except Exception as e:
-        print(f"ERROR RAG: Fallo al ejecutar el pipeline: {e}")
+        logger.error(f"ERROR RAG: Fallo al ejecutar el pipeline: {e}")
         raise HTTPException(
-            status_code=500, 
+            status_code=500,
             detail="Fallo interno al procesar la consulta RAG."
         )
 
-# --- ENDPOINT 2: ALMACENAMIENTO DE FEEDBACK ---
+# --- ENDPOINT 2: ALMACENAMIENTO DE FEEDBACK (Llamado por frontend)---
 
 @app.post("/submit_feedback", response_model=FeedbackResult)
 async def submit_feedback_endpoint(feedback_data: FeedbackInput):
@@ -296,14 +330,12 @@ async def submit_feedback_endpoint(feedback_data: FeedbackInput):
     chunk_ids = ", ".join(map(str, feedback_data.chunk_ids))
     rating = feedback_data.evaluation
     comment = feedback_data.comment
-   
-    print(f'chunk_ids: {chunk_ids}')
 
     try:
-        feedback_id = save_feedback_to_db(query=query, llm_response=llm_response, chunk_ids=chunk_ids, rating=rating)
+        feedback_id = save_feedback_to_db(query=query, llm_response=llm_response, chunk_ids=chunk_ids, rating=rating, comment=comment)
         return FeedbackResult(feedback_id=feedback_id)
     except Exception as e:
-        print(f"ERROR: Fallo al guardar el feedback: {e}")
+        logger.error(f"ERROR: Fallo al guardar el feedback: {e}")
         raise HTTPException(
             status_code=500, 
             detail="Fallo interno del servidor al intentar guardar el feedback."
@@ -342,11 +374,11 @@ def ingest_metadata_only():
         raise HTTPException(status_code=500, detail=f"Error interno al procesar metadata: {str(e)}")
 
 
-# --- ENDPOINT 3: Procesamiento Pesado (Llamado por Airflow) ---
+# --- ENDPOINT 4: Procesamiento Pesado (Llamado por Airflow) ---
 
 @app.post("/process_document", response_model=ProcessingResult)
 async def process_document_endpoint(input_data: ProcessDocumentInput):
-    print(f"\n--- INICIANDO PROCESAMIENTO PARA: '{input_data.path_file}'\n'{input_data.path_file_clean}\n{input_data.hash_file} ---")
+    logger.info(f"\n--- INICIANDO PROCESAMIENTO  ---")
     
     success = process_single_document(
         input_data.path_file,
@@ -358,11 +390,7 @@ async def process_document_endpoint(input_data: ProcessDocumentInput):
     else:
         raise HTTPException(status_code=500, detail="Fallo en el procesamiento del documento.")
 
-# --- ENDPOINT 4: Endpoint de prueba de conexión ---
+# --- ENDPOINT 5: Endpoint de prueba de conexión ---
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "RAG Core API"}
-
-
-
-
