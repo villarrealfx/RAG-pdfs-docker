@@ -10,7 +10,7 @@ from rag_pdf_processor.utils.config import RAW_DATA_DIR, PROCESSED_DATA_DIR, PG_
 
 from rag_pdf_processor.chunker_text import (
     extract_structured_content,
-    create_semantic_chunks
+    create_semantic_retrieval_context
 )
 from rag_pdf_processor.database_pg import (
     QdrantVectorStore,
@@ -215,26 +215,18 @@ def process_single_document(path_file, path_file_clean, hash_file):
         logger.info("2. Extrayendo contenido estructurado...")
         content = extract_structured_content(path_file_clean)
         
-        # 3. Crear chunks semánticos basados en el contenido ✅
-        logger.info("3. Creando chunks semánticos...")
-        documents = create_semantic_chunks(content, os.path.basename(path_file_clean))
+        # 3. Crear retrieval_context semánticos basados en el contenido ✅
+        logger.info("3. Creando retrieval_context semánticos...")
+        documents = create_semantic_retrieval_context(content, os.path.basename(path_file_clean))
 
         if not documents:
-            logger.error("⚠️  No se generaron chunks. Guardando como fallido...")
-            save_processing_metadata(
-                PG_CONNECTION, 
-                path_file, 
-                os.path.basename(path_file), 
-                hash_file, 
-                successfully_processed=False, 
-                error_message="No se generaron chunks"
-            )
+            logger.error("⚠️  No se generaron retrieval_context......")
             return False
         
         # 4. Guardar vectores en Qdrant CON BÚSQUEDA HÍBRIDA
-        logger.info(f"4. Guardando {len(documents)} chunks en Qdrant (colección híbrida)...")
+        logger.info(f"4. Guardando {len(documents)} retrieval_context en Qdrant (colección híbrida)...")
         vector_store = QdrantVectorStore()  
-        vector_store.insert_chunks(documents)  # ← Ahora inserta dense + sparse vectors
+        vector_store.insert_retrieval_context(documents)  # ← Ahora inserta dense + sparse vectors
         
         # 5. Guardar metadata en PostgreSQL
         logger.info("5. Guardando metadata de procesamiento...")
@@ -257,18 +249,6 @@ def process_single_document(path_file, path_file_clean, hash_file):
             return False
     except Exception as e:
         logger.error(f"❌ Error procesando {os.path.basename(path_file)}: {e}") 
-        # Guardar error en metadata
-        # try:
-        #     save_processing_metadata(
-        #         PG_CONNECTION, 
-        #         path_file, 
-        #         os.path.basename(path_file), 
-        #         hash_file, 
-        #         successfully_processed=False, 
-        #         error_message=str(e)
-        #     )
-        # except:
-        #     pass
         return False
 
 if __name__ == "__main__":

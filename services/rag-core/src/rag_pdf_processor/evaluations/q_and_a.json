@@ -1,0 +1,34 @@
+[
+    {
+    "query": "What is the primary purpose of the SINAUT Spectrum SDM Base Applications Reference document?",
+    "expected_output": "This document is a reference document that aids in the process of defining source data for the SINAUT Spectrum Base Applications. "
+},
+    {
+    "query": "What kind of information is provided in this SDM Base Applications Reference user guide?",
+    "expected_output": "The information provided in this user guide includes SDM form descriptions for interactive data entry, guidelines for collecting the source data, the import record formats, and the detailed definitions of the import record attributes. "
+},
+{
+    "query": "What is the hierarchical structure of records in the DMS system as described?",
+    "expected_output": "The hierarchical structure consists of: 1) a record for each DMS Area, 2) within a DMS Area, a record for every element of that area, 3) within each element, a record for every info of that element, which may have sub-info records. Following the area record group, there is 4) a record for each voltage or feeder level in a DMS area, 5) within each voltage/feeder level, a record for every element, and 6) within each element, a record for every info. Furthermore, 7) within a voltage/feeder level, there can be a record for each equipment type (e.g., Busbar, Generating Unit)."
+},
+{
+    "query": "What is a voltage level defined as in the context of a station?",
+    "expected_output": "A voltage level is defined as the basic subdivision of a station. It includes all equipment in a station that operates at a particular nominal voltage. A station may contain equipment operating at one or more nominal voltages, meaning it can have multiple voltage levels."
+},
+{
+    "query": "What functions are available in the Command Block of the Task Log Form?",
+    "expected_output": "The Command Block of the Task Log Form contains the following buttons: Cancel (exits the form), Cancel Last Task (cancels the most recent task and removes its data changes), Clear Task Errors (clears errors for the selected task), Clear Job Errors (clears errors for all tasks of the job), Clear Task Trace (clears trace messages for the selected task), and Clear Job Trace (clears trace messages for all tasks of the job)."
+},
+{
+    "query": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+    "expected_output": "The Model Form allows you to duplicate an entire data hierarchy (like a substation or switchbay) in the database. The key attributes in its Detail Block are: Model Level (the hierarchical level to be copied), Change Detection (checkbox to record changes in the log), Model Connectivity Information (checkbox to copy connectivity data), and Model Network Analysis Data (checkbox to copy network analysis data)."
+},
+{
+    "query": "What are the different forms provided by SDM for configuring application data and what is the purpose of each?",
+    "expected_output": "SDM provides four main forms for configuring application data: 1) The Application Data Info Form, which handles attributes of application data infos, associated additional information, and application data references. 2) The Application Data Characteristic Groups Form, which provides facilities for handling application data characteristic groups. 3) The Application Data Characteristics Form, which handles attributes of application data characteristics and characteristic segments. 4) The Schedule Form, which provides facilities for the configuration of schedules."
+},
+{
+    "query": "What specific operations can be performed using the Application Data Info Form?",
+    "expected_output": "The Application Data Info Form can be used to perform the following operations: view or modify attributes of application data infos; enter or modify additional information associated with application data infos; view, enter, or modify calculation attributes of calculated application data infos; and view, enter, or modify application data references."
+}
+]

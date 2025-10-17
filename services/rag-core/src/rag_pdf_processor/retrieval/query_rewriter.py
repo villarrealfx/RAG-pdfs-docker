@@ -50,7 +50,7 @@ class QueryRewriter:
             # Llamar al LLM para reformular
             rewritten_query = self.llm_interface.generate_response(
                 query=user_prompt,
-                context_chunks=[], # No contexto necesario para reformular la consulta
+                context_retrieval_context=[], # No contexto necesario para reformular la consulta
                 max_tokens=100, # Longitud razonable para una consulta reformulada
                 system_prompt_override=system_prompt # Pasar el system prompt específico
             ).strip()
@@ -89,7 +89,7 @@ class QueryRewriter:
 
             expanded_query = self.llm_interface.generate_response(
                 query=user_prompt,
-                context_chunks=[],
+                context_retrieval_context=[],
                 max_tokens=150,
                 system_prompt_override=system_prompt
             ).strip()
@@ -139,7 +139,7 @@ class QueryRewriter:
             # Llamar al LLM para generar las consultas
             response_text = self.llm_interface.generate_response(
                 query=user_prompt,
-                context_chunks=[],
+                context_retrieval_context=[],
                 max_tokens=200, # Ajusta según sea necesario
                 system_prompt_override=system_prompt
             )

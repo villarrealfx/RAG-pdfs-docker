@@ -1,0 +1,67 @@
+[
+    {
+    "query": "What typification forms are provided to define new types or modify existing ones?",
+    "expected_output": "The following forms are provided for defining new types or modifying existing ones: the Info Type Definition Form, the Digital Element Type Form, the Analog Element Type Form, the Accumulator Element Type Form, the Element Name Definition Form, and the Info Text Definition Form."
+},
+    {
+    "query": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+    "expected_output": "The 'Model' button allows you to create a new info type by using an existing info type as a model."
+},
+{
+    "query": "What is the hierarchical structure of records in the DMS system as described?",
+    "expected_output": "The hierarchical structure consists of: 1) a record for each DMS Area, 2) within a DMS Area, a record for every element of that area, 3) within each element, a record for every info of that element, which may have sub-info records. Following the area record group, there is 4) a record for each voltage or feeder level in a DMS area, 5) within each voltage/feeder level, a record for every element, and 6) within each element, a record for every info. Furthermore, 7) within a voltage/feeder level, there can be a record for each equipment type (e.g., Busbar, Generating Unit)."
+},
+{
+    "query": "What is a voltage level defined as in the context of a station?",
+    "expected_output": "A voltage level is defined as the basic subdivision of a station. It includes all equipment in a station that operates at a particular nominal voltage. A station may contain equipment operating at one or more nominal voltages, meaning it can have multiple voltage levels."
+},
+{
+    "query": "What functions are available in the Command Block of the Task Log Form?",
+    "expected_output": "The Command Block of the Task Log Form contains the following buttons: Cancel (exits the form), Cancel Last Task (cancels the most recent task and removes its data changes), Clear Task Errors (clears errors for the selected task), Clear Job Errors (clears errors for all tasks of the job), Clear Task Trace (clears trace messages for the selected task), and Clear Job Trace (clears trace messages for all tasks of the job)."
+},
+{
+    "query": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+    "expected_output": "The Model Form allows you to duplicate an entire data hierarchy (like a substation or switchbay) in the database. The key attributes in its Detail Block are: Model Level (the hierarchical level to be copied), Change Detection (checkbox to record changes in the log), Model Connectivity Information (checkbox to copy connectivity data), and Model Network Analysis Data (checkbox to copy network analysis data)."
+},
+{
+    "query": "What are the different forms provided by SDM for configuring application data and what is the purpose of each?",
+    "expected_output": "SDM provides four main forms for configuring application data: 1) The Application Data Info Form, which handles attributes of application data infos, associated additional information, and application data references. 2) The Application Data Characteristic Groups Form, which provides facilities for handling application data characteristic groups. 3) The Application Data Characteristics Form, which handles attributes of application data characteristics and characteristic segments. 4) The Schedule Form, which provides facilities for the configuration of schedules."
+},
+{
+    "query": "What specific operations can be performed using the Application Data Info Form?",
+    "expected_output": "The Application Data Info Form can be used to perform the following operations: view or modify attributes of application data infos; enter or modify additional information associated with application data infos; view, enter, or modify calculation attributes of calculated application data infos; and view, enter, or modify application data references."
+},
+{
+    "query": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+    "expected_output": "The Circuit Specific Combinations Form is used for handling decision tables for standardized logical operations. It allows the definition of rules to combine any information within a block (B1, B2, or B3). This form is preferably used for all different logical operations within one network element group."
+},
+{
+    "query": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+    "expected_output": "The Master Block of the Circuit Specific Combinations Form displays general attributes of the currently selected decision table, including the 'Number' field which shows the decision table's number and allows selection of another table by entering or selecting its name from a list."
+},
+{
+    "query": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+    "expected_output": "Multisite data are automatically inherited by all subordinate B2 and B3 blocks from their parent B1 block. This inheritance can be overwritten by pressing the 'Disinherit' button, which releases the fields for new data input. To revert back to the inherited data, the 'Reinherit' button can be pressed."
+},
+{
+    "query": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+    "expected_output": "When the 'Disinherit' button is pressed, the fields in the tabular list become available for manual input, allowing new data to be entered, and the button itself changes to 'Reinherit'."
+},
+{
+    "query": "What is the purpose of the Application Data Reference Worksheet and what information does it display?",
+    "expected_output": "The Application Data Reference Worksheet displays the available reference 'terminals' of the selected application data element and the associated technological addresses of the referenced application data elements. It shows the reference terminal name in the 'Reference' column and the technological address in the 'B1-Name', 'B2-Name', 'B3-Name', and 'Element-Name' columns."
+},
+{
+    "query": "What are the requirements for assigning a formula to an application data info in the Calculation Worksheet?",
+    "expected_output": "To assign a formula to an application data info, the selected application data info must be a calculated application data info with its input mode set to IO. The formula must have been previously defined via SDM, and the data type of the formula's result must match the application data type of the selected application data info."
+},
+{
+    "query": "What are the five parts of a Technological Address (TA) and what does each part represent?",
+    "expected_output": "The five parts of a Technological Address are: B1 (Block of hierarchical level 1), which is either the substation name or the literal value 'Line'; B2 (Block of hierarchical level 2), which is the voltage level name; and B3 (Block of hierarchical level 3), which is the network equipment or component name. The text specifically describes only these three parts (B1, B2, B3) rather than five."
+},
+{
+    "query": "What are the uniqueness requirements for B1, B2, and B3 names in a Technological Address?",
+    "expected_output": "B1 names (substation names) must be unique across the entire network. B2 names (voltage level names) only need to be unique within their respective substation. B3 names (equipment/component names) only need to be unique within their voltage level."
+}
+
+]

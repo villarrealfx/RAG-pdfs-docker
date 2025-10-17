@@ -24,7 +24,8 @@ if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
 from rag_pdf_processor.clean_pdf import process_pdf_advanced
-from rag_pdf_processor.utils.config import CHUNKS_DATA_DIR
+from rag_pdf_processor.utils.config import retrieval_context_DATA_DIR
+
 
 
 def extract_structured_content(pdf_path: str) -> List[Dict]:
@@ -77,8 +78,8 @@ def _is_chapter_header(line: str) -> bool:
         ]
         return any(re.match(pattern, line) for pattern in patterns)
 
-def create_semantic_chunks(structured_content: List[Dict], manual_name: str) -> List[Dict]:
-    """Crea chunks semánticos"""
+def create_semantic_retrieval_context(structured_content: List[Dict], manual_name: str) -> List[Dict]:
+    """Crea retrieval_context semánticos"""
 
     embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5", device="cpu")
     
@@ -98,11 +99,11 @@ def create_semantic_chunks(structured_content: List[Dict], manual_name: str) -> 
                     embedding = embeddings.embed_query(contenido)
                     full_doc.append({"book_name": manual_name,"Chapter": doc['chapter'], "Content": contenido, "Embedding": embedding })
     
-    logger.info(f"Se han creado {len(full_doc)} chunks semánticos.")
+    logger.info(f"Se han creado {len(full_doc)} retrieval_context semánticos.")
 
     df = pd.DataFrame(full_doc)
-    df.to_csv(f"{CHUNKS_DATA_DIR}/{manual_name}_semantic_chunks.csv", index=False)
-    logger.info(f"Se han creado archivo de respaldo con los chunks semánticos de {manual_name}.")
+    df.to_csv(f"{retrieval_context_DATA_DIR}/{manual_name}_semantic_retrieval_context.csv", index=False)
+    logger.info(f"Se han creado archivo de respaldo con los retrieval_context semánticos de {manual_name}.")
 
     return full_doc
 
@@ -113,4 +114,4 @@ if __name__ == '__main__':
 
     pdf_clean = process_pdf_advanced(path_file, path_file_clean)
     content = extract_structured_content(path_file_clean)
-    documents = create_semantic_chunks(content, os.path.basename(path_file_clean))  
+    documents = create_semantic_retrieval_context(content, os.path.basename(path_file_clean))  

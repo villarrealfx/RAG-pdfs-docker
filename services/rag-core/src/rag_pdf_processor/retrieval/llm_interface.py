@@ -57,13 +57,13 @@ class LLMInterface:
             return 'en'
     
 
-    def generate_response(self, query: str, context_chunks: List[Dict], max_tokens: int = 500, system_prompt_override: Optional[str] = None, temperature: Optional[float] = None) -> str:
+    def generate_response(self, query: str, context_retrieval_context: List[Dict], max_tokens: int = 500, system_prompt_override: Optional[str] = None, temperature: Optional[float] = None) -> str:
         """
         Generar respuesta usando LLM vía API
 
         Args:
             query: Pregunta del usuario (o instrucción para reformular)
-            context_chunks: Chunks recuperados del vector store (puede ser vacío para reformulación)
+            context_retrieval_context: retrieval_context recuperados del vector store (puede ser vacío para reformulación)
             max_tokens: Máximo de tokens en la respuesta
             system_prompt_override: Opcional. Permitir sobrescribir el system prompt estándar (útil para reformular consultas).
             temperature: Opcional. Permitir sobrescribir la temperatura usada por el modelo (0.0 a 2.0, valores más bajos son más deterministas).
@@ -74,7 +74,7 @@ class LLMInterface:
         try:
             if not self.client:
                 # Modo simulado si no hay API key
-                return self._simulate_response(query, context_chunks)
+                return self._simulate_response(query, context_retrieval_context)
 
             # Detectar idioma de la pregunta
             query_language = self.detect_language(query)
@@ -94,7 +94,7 @@ class LLMInterface:
             # Construir contexto (en inglés, porque la KB es en inglés)
             context = "\n".join([
                 f"Document: {chunk['source_document']} \nContent: {chunk['content']}"
-                for chunk in context_chunks
+                for chunk in context_retrieval_context
             ])
 
             user_prompt = f"""
@@ -126,7 +126,7 @@ class LLMInterface:
             logger.debug(f"📝 LLM generated response of {len(answer)} characters",
                         extra={
                             "query_length": len(query),
-                            "context_chunks": len(context_chunks),
+                            "context_retrieval_context": len(context_retrieval_context),
                             "model": self.model,
                             "query_language": query_language,
                             "response_language": self.detect_language(answer) if len(answer) > 10 else "unknown",
@@ -140,13 +140,13 @@ class LLMInterface:
             return "Sorry, there was an error generating the response. Please try again."
 
         
-    def _simulate_response(self, query: str, context_chunks: List[Dict]) -> str:
+    def _simulate_response(self, query: str, context_retrieval_context: List[Dict]) -> str:
         """
         Respuesta simulada cuando no hay API key
         
         Args:
             query: Pregunta del usuario
-            context_chunks: Chunks recuperados
+            context_retrieval_context: retrieval_context recuperados
             
         Returns:
             Respuesta simulada
@@ -154,4 +154,4 @@ class LLMInterface:
         query_language = self.detect_language(query)
         logger.warning(f"⚠️ Usando modo simulado (no hay API key). Idioma: {query_language}")
         
-        return f"[Simulado] Para la pregunta: '{query[:50]}...' (usando {len(context_chunks)} chunks). Idioma detectado: {query_language}"
+        return f"[Simulado] Para la pregunta: '{query[:50]}...' (usando {len(context_retrieval_context)} retrieval_context). Idioma detectado: {query_language}"

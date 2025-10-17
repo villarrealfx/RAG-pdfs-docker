@@ -21,7 +21,7 @@ class QdrantVectorStore:
                 port=port,
                 timeout=10.0
             )
-            self.collection_name = "chunks-hybrid"  # ← Nombre de la colección híbrida
+            self.collection_name = "retrieval_context-hybrid"  # ← Nombre de la colección híbrida
             self.embedding_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")  # ← Modelo para generar embeddings
             
             # Crear colección híbrida
@@ -81,12 +81,12 @@ class QdrantVectorStore:
         """Mantener para compatibilidad, pero usar _create_hybrid_collection"""
         self._create_hybrid_collection()
 
-    def insert_chunks(self, chunks: List[Dict]):
+    def insert_retrieval_context(self, retrieval_context: List[Dict]):
         """
-        Inserta chunks con dense + sparse vectors.
+        Inserta retrieval_context con dense + sparse vectors.
         
         Args:
-            chunks (list): Lista con la estructura:
+            retrieval_context (list): Lista con la estructura:
                 [
                     {
                         "book_name": str,
@@ -97,7 +97,7 @@ class QdrantVectorStore:
         """
         successful_inserts = 0
         
-        for chunk in chunks:
+        for chunk in retrieval_context:
             try:
                 # Generar ID único basado en el contenido
                 content_str = f"{chunk['book_name']}_{chunk['Chapter']}_{chunk['Content'][:50]}"
@@ -134,7 +134,7 @@ class QdrantVectorStore:
             except Exception as e:
                 logger.error(f"❌ Error insertando chunk {chunk.get('book_name', 'unknown')}: {e}")
         
-        logger.info(f"✅ {successful_inserts}/{len(chunks)} puntos insertados en '{self.collection_name}'.")
+        logger.info(f"✅ {successful_inserts}/{len(retrieval_context)} puntos insertados en '{self.collection_name}'.")
         return successful_inserts
 
 def save_processing_metadata(connection_string, file_path, file_name, hash_md5, successfully_processed=None, error_message=None):

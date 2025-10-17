@@ -47,7 +47,7 @@ logging.basicConfig(level=logging.INFO)
 
 logger.info("🔄 Inicializando componentes RAG...")
 try:
-    vector_store = VectorRetriever(collection_name="chunks-hybrid")
+    vector_store = VectorRetriever(collection_name="retrieval_context-hybrid")
     logger.info("✅ Vector Store (Qdrant) inicializado.")
 except Exception as e:
     logger.error(f"Error inicializando Vector Store: {e}")
@@ -67,8 +67,6 @@ except Exception as e:
     logger.error(f"Error inicializando Query Rewriter: {e}")
     raise
 
-
-
 # --- 3. CONFIGURACIÓN E INICIALIZACIÓN DE FASTAPI ---
 app = FastAPI(
     title="Document Processor Backend API",
@@ -78,7 +76,6 @@ app = FastAPI(
 
 # --- 4. MODELOS DE DATOS (PYDANTIC) ---
 
-# Modelos de Ingesta
 class DocumentPaths(BaseModel):
     monitored_folders: Optional[List[str]] = Field(default=None)
     paths: List[str] = Field(default_factory=list)
@@ -125,13 +122,13 @@ class RAGChunkMetadata(BaseModel):
 class RAGOutput(BaseModel):
     """Output del pipeline RAG que contiene la respuesta y todos los metadatos de apoyo."""
     query_used: str = Field(..., description="La pregunta del usuario procesada.")
-    llm_response: str = Field(..., description="Respuesta final generada por el LLM.")
-    chunks_used: List[RAGChunkMetadata] = Field(..., description="Lista de chunks que sirvieron de contexto.")
+    actual_output: str = Field(..., description="Respuesta final generada por el LLM.")
+    retrieval_context_used: List[RAGChunkMetadata] = Field(..., description="Lista de retrieval_context que sirvieron de contexto.")
     llm_model: str = Field(..., description="Nombre del modelo LLM usado (e.g., gemini-2.5-flash).")
 
 class FeedbackInput(BaseModel):
     query: str = Field(...)
-    LLM_response: str = Field(...)
+    actual_output: str = Field(...)
     chunk_ids: List[str] = Field(...)
     evaluation: conint(ge=1, le=5) = Field(..., description="Evaluación del 1 al 5.")
     comment: Optional[str] = Field(None)
@@ -151,20 +148,20 @@ def get_db_config():
         'port': os.getenv('DB_PORT', '5432')
     }
 
-def save_feedback_to_db(query, llm_response, chunk_ids, rating, comment):
+def save_feedback_to_db(query, actual_output, chunk_ids, rating, comment):
 
     """Guarda el feedback del usuario en la base de datos."""
 
     feedback_id = hashlib.sha256(f"{query}{time.time()}".encode()).hexdigest()[:12]
 
-    query = """
-        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, rating, comment)
+    query_insert = """
+        INSERT INTO user_feedback (feedback_id, query, actual_output, chunk_ids, rating, comment)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
 
-    params = (feedback_id, query, llm_response, chunk_ids, rating, comment)
+    params = (feedback_id, query, actual_output, chunk_ids, rating, comment)
 
-    result = execute_query(user = 'appuser', query=query, fetch=False, params=params)
+    result = execute_query(user = 'appuser', query=query_insert, fetch=False, params=params)
 
     if result:  # .get("status") == "success":
         return feedback_id
@@ -174,7 +171,7 @@ def save_feedback_to_db(query, llm_response, chunk_ids, rating, comment):
 def execute_rag_pipeline_rewriter(user_query: str, query_rewriter: QueryRewriter) -> RAGOutput:
     """
     Pipeline RAG: Expand Query, Embed, Search, Rerank, LLM.
-    Devuelve la respuesta del LLM y los metadatos de los chunks.
+    Devuelve la respuesta del LLM y los metadatos de los retrieval_context.
     """
     logger.info(f"\n--- EJECUTANDO RAG PARA: '{user_query}' ---")
 
@@ -184,35 +181,35 @@ def execute_rag_pipeline_rewriter(user_query: str, query_rewriter: QueryRewriter
     logger.info(f"🔍 Consultas expandidas: {expanded_queries}")
 
     # 2. Buscar con cada query expandida y combinar resultados
-    all_chunks = []
+    all_retrieval_context = []
     for query in expanded_queries:
-        chunks = vector_store.hybrid_search_with_rerank(
+        retrieval_context = vector_store.hybrid_search_with_rerank(
             query,
             limit=5,  # Ajustar si es necesario
             use_rerank=True
         )
-        all_chunks.extend(chunks)
+        all_retrieval_context.extend(retrieval_context)
 
     # 3. Eliminar duplicados y ordenar por relevancia (si es necesario)
-    unique_chunks_map = {}
-    for chunk in all_chunks:
+    unique_retrieval_context_map = {}
+    for chunk in all_retrieval_context:
         chunk_id = chunk.get("id")
-        if chunk_id and chunk_id not in unique_chunks_map:
-            unique_chunks_map[chunk_id] = chunk
+        if chunk_id and chunk_id not in unique_retrieval_context_map:
+            unique_retrieval_context_map[chunk_id] = chunk
 
-    unique_chunks = list(unique_chunks_map.values())
-    logger.info(f"total chunks únicos: {len(unique_chunks)}")
+    unique_retrieval_context = list(unique_retrieval_context_map.values())
+    logger.info(f"total retrieval_context únicos: {len(unique_retrieval_context)}")
 
     # 4. Ordenar por relevancia por score rerank
-    unique_chunks.sort(key=lambda x: x.get('rerank_score', 0), reverse=True)
+    unique_retrieval_context.sort(key=lambda x: x.get('rerank_score', 0), reverse=True)
 
-    # 5. Limitar a 5 chunks finales, se puede ajustar si es necesario
-    final_chunks = unique_chunks[:5]
+    # 5. Limitar a 5 retrieval_context finales, se puede ajustar si es necesario
+    final_retrieval_context = unique_retrieval_context[:5]
 
-    logger.info(f"📦 Chunks combinados y finalizados: {len(final_chunks)}")
+    logger.info(f"📦 retrieval_context combinados y finalizados: {len(final_retrieval_context)}")
 
     # 6. Crear contexto para LLM
-    context_chunks_for_llm = [
+    context_retrieval_context_for_llm = [
             {
                 "chunk_id": chunk["id"],
                 "content": chunk["content"],
@@ -221,13 +218,13 @@ def execute_rag_pipeline_rewriter(user_query: str, query_rewriter: QueryRewriter
                 "original_score": chunk["original_score"],  
                 "text_preview": chunk["content"][:200] + ("..." if len(chunk["content"]) > 200 else ""),
                 }
-            for chunk in final_chunks
+            for chunk in final_retrieval_context
         ]
 
     # 7. Generar respuesta con el LLM
     response = llm_interface.generate_response(
         query=user_query,  # Usar la pregunta original para el LLM
-        context_chunks=context_chunks_for_llm,
+        context_retrieval_context=context_retrieval_context_for_llm,
         max_tokens=500,
         temperature=0
     )
@@ -238,26 +235,26 @@ def execute_rag_pipeline_rewriter(user_query: str, query_rewriter: QueryRewriter
 
     return RAGOutput(
         query_used=user_query,
-        llm_response=response,
-        chunks_used=context_chunks_for_llm,
+        actual_output=response,
+        retrieval_context_used=context_retrieval_context_for_llm,
         llm_model="deepseek-chat"
     )
     
 def execute_rag_pipeline(user_query: str) -> RAGOutput:
     """
     Pipeline RAG: Embed, Search, Rerank, LLM.
-    Devuelve la respuesta del LLM y los metadatos de los chunks.
+    Devuelve la respuesta del LLM y los metadatos de los retrieval_context.
     """
     logger.info(f"\n--- EJECUTANDO RAG PARA: '{user_query}' ---")
 
 
-    chunks_retrieved = vector_store.hybrid_search_with_rerank(  
+    retrieval_context_retrieved = vector_store.hybrid_search_with_rerank(  
                         user_query, 
                         limit=5, 
                         use_rerank=True  # use_rerank
             )
  
-    context_chunks_for_llm = [
+    context_retrieval_context_for_llm = [
             {
                 "chunk_id": chunk["id"],
                 "content": chunk["content"],
@@ -266,18 +263,16 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
                 "original_score": chunk["original_score"],  # .get("original_score", 0.0),
                 "text_preview": chunk["content"][:200] + ("..." if len(chunk["content"]) > 200 else ""),
                 }
-            for chunk in chunks_retrieved
+            for chunk in retrieval_context_retrieved
         ]
     
 
     response = llm_interface.generate_response(
             query=user_query,
-            context_chunks=context_chunks_for_llm,
+            context_retrieval_context=context_retrieval_context_for_llm,
             max_tokens=500,
             temperature= 0  # temperature
         )
-    
-
     
     logger.info("--- RAG COMPLETADO ---")
 
@@ -285,8 +280,8 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
     
     return RAGOutput(
         query_used=user_query,
-        llm_response=response,
-        chunks_used=context_chunks_for_llm,
+        actual_output=response,
+        retrieval_context_used=context_retrieval_context_for_llm,
         llm_model="deepseek-chat"
     )
 
@@ -326,13 +321,13 @@ async def submit_feedback_endpoint(feedback_data: FeedbackInput):
     """
 
     query = feedback_data.query
-    llm_response = feedback_data.LLM_response
+    actual_output = feedback_data.actual_output
     chunk_ids = ", ".join(map(str, feedback_data.chunk_ids))
     rating = feedback_data.evaluation
     comment = feedback_data.comment
 
     try:
-        feedback_id = save_feedback_to_db(query=query, llm_response=llm_response, chunk_ids=chunk_ids, rating=rating, comment=comment)
+        feedback_id = save_feedback_to_db(query=query, actual_output=actual_output, chunk_ids=chunk_ids, rating=rating, comment=comment)
         return FeedbackResult(feedback_id=feedback_id)
     except Exception as e:
         logger.error(f"ERROR: Fallo al guardar el feedback: {e}")

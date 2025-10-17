@@ -1,0 +1,518 @@
+[
+    {
+         "query": "What is the primary purpose of the SINAUT Spectrum SDM Base Applications Reference document?",
+         "answer": "This document is a reference document that aids in the process of defining source data for the SINAUT Spectrum Base Applications. "
+       },
+    {
+         "query": "What kind of information is provided in this SDM Base Applications Reference user guide?",
+         "answer": "The information provided in this user guide includes SDM form descriptions for interactive data entry, guidelines for collecting the source data, the import record formats, and the detailed definitions of the import record attributes. "
+       },
+    {
+         "query": "Who is the SDM Base Applications Reference document intended for?",
+         "answer": "It is intended for data engineers who understand the power system characteristics and who are thoroughly knowledgeable about the topics covered by the various data analysis user guides. "
+       },
+    {
+         "query": "Besides power system characteristics knowledge, what other understanding is required for the data engineer's role when using SDM?",
+         "answer": "The data engineer's role requires an understanding of database concepts to ensure that the correct and appropriate data is both initially incorporated and maintained in the source database and in the Operational Database (ODB). "
+       },
+    {
+         "query": "What is an unconditional prerequisite knowledge before attempting to use SDM to define or modify data?",
+         "answer": "Before you attempt to use your SDM to define or modify data, you should have at least a basic knowledge of The SINAUT Spectrum data model and its application for your network. "
+       },
+    {
+         "query": "What is guaranteed by the knowledge of the SINAUT Spectrum data model and its application for your individual network (network data analysis)?",
+         "answer": "Only the knowledge of the SINAUT Spectrum data model and its application for your individual network (this is what we call 'network data analysis') will guarantee that you are fully aware of the consequences of your data entry. "
+       },
+    {
+         "query": "What document is strongly recommended to read before starting work with SDM for network data analysis purposes?",
+         "answer": "We strongly recommend that you read the Base Applications Data Analysis user guide for this purpose and that you perform the network data analysis described in this document before you start working with SDM. "
+       },
+    {
+         "query": "What is recommended to achieve knowledge of the principles, features, and basic procedures of SDM?",
+         "answer": "To achieve this knowledge, we recommend that you complete the SDM class before you start working with SDM. "
+       },
+    {
+         "query": "What must be known about SDM forms before going into their details?",
+         "answer": "Before you can go into the details of the SDM forms, it is necessary to know the basic principles, features and operation procedures that are common to all SDM forms. "
+       },
+    {
+         "query": "What does the SDM Basics chapter deal with?",
+         "answer": "This chapter deals with basic SDM principles. It describes the following major aspects of SDM: Basic concepts and operation procedures that apply to all SDM forms, and the basic structure of the SDM forms. "
+       },
+    {
+         "query": "What is Job Management in the context of database changes?",
+         "answer": "The method by which database changes are grouped and controlled is called Job Management. "
+       },
+    {
+         "query": "What status must a legitimate job be in to modify data via an SDM form?",
+         "answer": "In order to modify data, you must be connected to a legitimate job that is in status Ready. "
+       },
+    {
+         "query": "How do you connect to a job (resume an existing job or create a new job)?",
+         "answer": "To connect to a job, i.e., to resume an existing job or to create a new job, enter the job name into the text field of the attribute Job Name in the Job Management Form. "
+       },
+    {
+         "query": "Where are other actions related to job management performed?",
+         "answer": "Other actions related with job management are performed via the Job Log Form. "
+       },
+    {
+         "query": "What happens if you are not connected to a job or if you are connected to an unavailable job in an SDM form?",
+         "answer": "You will not be able to insert, update and delete data via a SDM form, if you are not connected to a job or if you are connected to an unavailable job. "
+       },
+    {
+         "query": "What is the consequence of not being connected to an available job in an SDM form regarding data access rights?",
+         "answer": "In this case, the rights to insert, update and delete data will be disabled for the respective SDM form, meaning you will solely have a read-only access to the concerned data. [cite: 20, 21]"
+       },
+    {
+         "query": "What is the function of Job Interlocks?",
+         "answer": "Job interlocks prevent different jobs from modifying the same data by locking the data the jobs uses. "
+       },
+    {
+         "query": "What are the two ways Job Interlocks are enforced?",
+         "answer": "Job interlocks are enforced in two ways depending on the hierarchical level of the data to be modified: For entire forms and for individual data records shown in a form. [cite: 24, 25, 29]"
+       },
+    {
+         "query": "For which hierarchical level of data entities is the 'Job interlock for entire forms' enforced?",
+         "answer": "This type of job interlock is enforced for data entities on a lower hierarchical level of a data hierarchy (for example: Elem is the 4th hierarchical level of the SCADA data hierarchy B1/B2/B3/Elem/Info, etc.). "
+       },
+    {
+         "query": "Where is the job interlock information shown for an entire form interlock?",
+         "answer": "The job interlock information is shown in the display field of the attribute Job Interlock in the Job Block of the respective form. "
+       },
+    {
+         "query": "For which hierarchical level of data entities is the 'Job interlock for individual data records' enforced?",
+         "answer": "This type of job interlock is enforced for top-level data entities (for example: B1 is the top-level data entity of the SCADA data hierarchy B1/B2/B3/Elem/Info, etc.). "
+       },
+    {
+         "query": "Where is the job interlock information shown for individual data records in a tabular list?",
+         "answer": "Usually, the respective form contains a tabular list that shows the available data records. In this case, the job interlock information is shown in a separate column of this list. "
+       },
+    {
+         "query": "What does a zero (blank) value in the job interlock field signify?",
+         "answer": "If the value in the job interlock field is zero (blank), you can perform your data modification. "
+       },
+    {
+         "query": "What appears in the job interlock field if the concerned data are locked by another job?",
+         "answer": "If the concerned data are locked by another job, the name of the job that 'holds' the interlock will appear in the job interlock field. "
+       },
+    {
+         "query": "What SDM form is used to view a job's interlock history and other pertinent job interlock information?",
+         "answer": "To view a job's interlock history and other pertinent job interlock information, use the Job Interlock Form. "
+       },
+    {
+         "query": "When does validation occur at the item level in SDM?",
+         "answer": "If a data entity can be verified at the item level, it is automatically verified. Simple data checks of single attributes will occur at the item level. [cite: 36, 38]"
+       },
+    {
+         "query": "When does validation occur at the record level in SDM?",
+         "answer": "If data can only be verified within the context of an entire record, the validation will occur at the record level. Data checks that require the comparison of two or more attributes within a data record will be performed at the record level. [cite: 37, 42]"
+       },
+    {
+         "query": "When does validation occur during Global Validation?",
+         "answer": "If verification of data requires that a number of records be completed or that an entire set of data be in place, validation will occur during Global Validation. "
+       },
+    {
+         "query": "What happens if validation fails at the Item Level?",
+         "answer": "If validation fails, the cursor is moved back into the input field of the invalid attribute and an error message will appear in the window message line of the respective SDM form. "
+       },
+    {
+         "query": "What happens if validation fails at the Record Level?",
+         "answer": "If validation fails, an alert window will appear. This alert window offers you the following options: 'Fix Data Errors' or 'Skip Validation'. "
+       },
+    {
+         "query": "When is Global Validation enforced?",
+         "answer": "Global Validation can be performed whenever you complete a data editing session and is enforced before you attempt to perform a job transfer. "
+       },
+    {
+         "query": "What is the content and purpose of 'Hints' in SDM forms?",
+         "answer": "Hints are short messages describing data attributes. They will appear in the window message line of an SDM form after a mouseclick on the input field of an attribute shown in the respective form. "
+       },
+    {
+         "query": "When are error messages written into the source database message table?",
+         "answer": "All error messages are written into the corresponding source database message table when the data modifications are applied to the database. "
+       },
+    {
+         "query": "What occurs if errors appear during the apply transaction of data modifications?",
+         "answer": "If errors occur during the apply transaction of data modifications, an alert window will be displayed indicating the number of error messages that have been stored in the corresponding source database message table. "
+       },
+    {
+         "query": "How can the Error Message Form be accessed after an apply transaction error?",
+         "answer": "If you press the button MSG in the SDM Toolbar immediately after you have acknowledged this message, the Error Message Form will appear and will show the first error of those error messages. "
+       },
+    {
+         "query": "When does an SDM form automatically come up with a full set of data upon selection?",
+         "answer": "If you select an SDM form, it will automatically come up with a full set of data if valid preset values have been provided in the Job Management Form. "
+       },
+    {
+         "query": "When does an SDM form come up empty and automatically switch to Query Mode?",
+         "answer": "If no preset values have been specified in the Job Management Form or if the specified preset values are invalid, the form comes up empty and will automatically switch to Query Mode. "
+       },
+    {
+         "query": "How can Query Mode be recognized in an SDM form?",
+         "answer": "Query Mode can be recognized by an appropriate system message that appears in the window status line, by the status of the SDM Toolbar (all buttons except Query are disabled), and by the content of the input fields (they are emptied). "
+       },
+    {
+         "query": "What is the consequence of performing an operation not involved in a query while the SDM form is in Query Mode?",
+         "answer": "If the selected SDM form is in Query Mode and a query has not been performed, any operation that is not involved in performing a query will be rejected and an appropriate system message will appear in the window message line of the respective SDM form. "
+       },
+    {
+         "query": "What is the immediate action required if an SDM form comes up in Query Mode?",
+         "answer": "If the SDM form you have selected comes up in Query Mode, you must perform a query before you can perform your intended data modifications. "
+       },
+    {
+         "query": "When is Query Mode terminated automatically?",
+         "answer": "After you have performed a query, Query Mode is terminated automatically. "
+       },
+    {
+         "query": "How can Query Mode be cancelled without performing a query?",
+         "answer": "Query Mode can be cancelled (even without performing a query) by selecting Exit from the File menu in the SDM Menubar. "
+       },
+    {
+         "query": "What happens if new data is entered into an empty form (not in Query Mode) and the Apply button is pressed?",
+         "answer": "If you enter new data into your empty form and you apply those data modifications by pressing the button Apply in the Command Block of your form, your data modifications will be applied to the source database and a query on all available data records of the respective data entity will be performed. "
+       },
+    {
+         "query": "What is the function of the query feature regarding data records?",
+         "answer": "Using the query feature, all available data records of a specific data entity or a subset of the available data records matching certain query criteria can be retrieved. "
+       },
+    {
+         "query": "Where is the number of retrieved data records displayed?",
+         "answer": "The number of retrieved data records will be displayed in the Status Line of the respective SDM form. "
+       },
+    {
+         "query": "How can specific data records be retrieved using query criteria?",
+         "answer": "You can retrieve specific data records by entering exact values for the query criteria. "
+       },
+    {
+         "query": "What are the wildcard characters used for retrieving data records matching a search pattern?",
+         "answer": "You can also retrieve data records that match a particular search pattern composed of a value (e.g., a character string) and the wildcard characters underscore ('_') or percentage ('%') or a combination of both. "
+       },
+    {
+         "query": "What does the wildcard character '_' represent?",
+         "answer": "The wildcard character '_' represents any single character. "
+       },
+    {
+         "query": "What does the wildcard character '%' represent?",
+         "answer": "The wildcard character '%' represents any combination of characters (including no character). "
+       },
+    {
+         "query": "What is the 'Query Window' used for in SDM?",
+         "answer": "Besides Query Mode and the query facilities in the Master Block, SDM provides a particular window for the retrieval of technological addresses. This window is called 'Query Window'. "
+       },
+    {
+         "query": "How can the retrieved technological addresses from the Query Window be used in a SDM form?",
+         "answer": "The retrieved technological addresses may be copied into an internal clipboard and then be taken over into a SDM form with a simple Copy and Paste-procedure. "
+       },
+    {
+         "query": "What is the function of the 'All' button in the SDM Toolbar of the Query Window?",
+         "answer": "Pressing this button selects all available technological addresses from the Query Result Tabular List. The check boxes of the selected technological addresses in the column Selected of the Query Result Tabular List are automatically checked. "
+       },
+    {
+         "query": "When does the 'All' button in the Query Window remain disabled?",
+         "answer": "The button All remains disabled until at least one technological address is available in the Query Result Tabular List. "
+       },
+    {
+         "query": "What happens when the 'Copy' button in the SDM Toolbar of the Query Window is pressed?",
+         "answer": "If you press the button Copy in the SDM Toolbar of the Query Window, the selected technological addresses from the Query Result Tabular List are copied to the internal clipboard. "
+       },
+    {
+         "query": "Which buttons in the Command Block of the Query Window remain disabled?",
+         "answer": "The buttons OK and Apply remain disabled in the Command Block of the Query Window. "
+       },
+    {
+         "query": "What is the function of the 'Cancel' button in the Command Block of the Query Window?",
+         "answer": "Pressing the button Cancel button closes the Query Window. "
+       },
+    {
+         "query": "What are the text fields in the Filter Block of the Query Window used for?",
+         "answer": "The text fields of these 4 attributes (B1-Name, B2-Name, B3-Name, Element Name) can be used to enter the query criteria (search pattern). "
+       },
+    {
+         "query": "What distinguishes the query facilities in the Query Window from other query facilities regarding wildcard characters?",
+         "answer": "Unlike the other query facilities, characters such as “%” or “_” will not be considered as wildcard characters (see section ’Query Criteria’ on page 8 for more details on wild card characters) when using the Filter Block in the Query Window. "
+       },
+    {
+         "query": "What does the 'Selected' read-only display field in the Filter Block of the Query Window show?",
+         "answer": "The 'Selected' field shows the number of the currently selected technological addresses from the Query Result Tabular List. "
+       },
+    {
+         "query": "What does each line of the Query Result Tabular List represent?",
+         "answer": "Each line of the tabular list represents a single technological address. "
+       },
+    {
+         "query": "What is the purpose of the 'Selected' column in the Query Result Tabular List?",
+         "answer": "The column Selected contains a check box that can be used to select the respective technological address. "
+       },
+    {
+         "query": "What is the first step when performing a query using the SDM Toolbar?",
+         "answer": "Press the button Query in the SDM Toolbar. This action empties the SDM form and puts it in Query Mode. "
+       },
+    {
+         "query": "What is retrieved if a query is performed without setting specific query criteria?",
+         "answer": "If a query is performed without setting specific query criteria, all data records of the respective data entity (for example, all B1 block records, all application data characteristic group records, etc.) are retrieved. "
+       },
+    {
+         "query": "Where must the query criteria be entered if the SDM form provides a Master Block?",
+         "answer": "If your SDM form provides a Master Block, you must enter the query criteria into the text field(s) of the Master Block. "
+       },
+    {
+         "query": "What action executes the query and retrieves data records from the source database tables?",
+         "answer": "Press the button Query in the SDM Toolbar. This action executes the query and retrieves all data records from the concerned source database tables that match the query criteria. "
+       },
+    {
+         "query": "What is the first step to perform a query using the Query Window?",
+         "answer": "Press the button Query TAs in the SDM Toolbar to call up the Query Window. "
+       },
+    {
+         "query": "How does the Query Window switch to Query Mode?",
+         "answer": "The Query Window switches automatically to Query Mode if you enter a character into the text fields B1-Name ... Element Name in the Filter Block. "
+       },
+    {
+         "query": "What button is pressed in the SDM Toolbar to execute the query within the Query Window?",
+         "answer": "Press the button Query in the SDM Toolbar. This action executes the query and retrieves all technological addresses from the concerned source database tables that match the entered search pattern. "
+       },
+    {
+         "query": "How are multiple technological addresses inserted into a tabular list if the cursor is in the list?",
+         "answer": "If the cursor is currently located in a tabular list and you are going to paste several technological addresses, the technological addresses will be inserted in the appropriate columns of successive rows in the list. "
+       },
+    {
+         "query": "What is the List Of Values (LOV) feature?",
+         "answer": "SDM forms support lists of valid values by the List Of Values (LOV) feature, which is a scrollable list in a separate window that pops up if you double-click on an input field that has an assigned list of valid values. "
+       },
+    {
+         "query": "What kind of entries can the List of Values Window contain?",
+         "answer": "The List of Values Window contains a scrollable pick list that shows a list of single-column or multi-column entries. "
+       },
+    {
+         "query": "What is the function of the Find field in the List of Values Window?",
+         "answer": "The Find field can be used to search specific list entries. "
+       },
+    {
+         "query": "What are the three buttons provided in the List of Values Window?",
+         "answer": "The List of Values Window contains three buttons: Find, OK, and Cancel. "
+       },
+    {
+         "query": "How can a value be selected and the List of Values Window automatically dismissed?",
+         "answer": "A value can be selected and the List of Values Window will be dismissed automatically by double-clicking on the desired list entry. "
+       },
+    {
+         "query": "How can the list panel be re-configured to show only matching list entries when searching specific list entries?",
+         "answer": "Hit the Return key on your keyboard or press the button Find to perform the search. The list panel will be re-configured and will show only matching list entries. "
+       },
+    {
+         "query": "How does the 'Auto-reducing' function work in the List of Values Window?",
+         "answer": "Click on the List panel and enter your search pattern. The list of values will automatically be reduced to those values that match your entry. "
+       },
+    {
+         "query": "What happens if a keystroke in the auto-reducing function produces no search result?",
+         "answer": "Since the list will be reduced after each single keystroke, it might happen that further entries will produce no search result. Pressing the Backspace key on the keyboard will restore the previous search result. "
+       },
+    {
+         "query": "What are the main groups of SDM forms?",
+         "answer": "SDM forms can be divided into the following main groups: Organizational SDM forms and SDM forms for data entry. "
+       },
+    {
+         "query": "What is the purpose of Organizational SDM forms?",
+         "answer": "Organizational SDM forms are used for the administration and organization of data modifications. "
+       },
+    {
+         "query": "What action allows access to DBA in the viewing mode 'Disp Orig'?",
+         "answer": "Pressing the 'Disp Orig' button allows you to access DBA in the viewing mode 'Disp Orig'. "
+       },
+    {
+         "query": "What is the purpose of the 'DataSave' button?",
+         "answer": "The 'DataSave' button invokes the DBA-related application 'Data Save' to backup data. "
+       },
+    {
+         "query": "What does the 'Inadequa' button call up?",
+         "answer": "The 'Inadequa' button calls up the Data Inadequacy Summary. "
+       },
+    {
+         "query": "What is the function of the Worksheet Selection Group in the Job Management Form?",
+         "answer": "The Worksheet Selection Group serves for selection of the required worksheet to be displayed in the Detail Block of the Job Management Form. "
+       },
+    {
+         "query": "Which radiobutton in the Worksheet Selection Group activates the Import Worksheet?",
+         "answer": "The 'Import' radiobutton selects the Import Worksheet in the Detail Block of the Job Management Form. "
+       },
+    {
+         "query": "What are the source attributes available in the Model Form for 'Source' when the Model Level is Element?",
+         "answer": "If the selected Model Level is Element, the accessible source attributes are B1 Name, B2 Name, B3 Name, and Element Name. [cite: 171, 172, 173, 174]"
+       },
+    {
+         "query": "What is the destination attribute available in the Model Form for 'Destination' for all Model Levels?",
+         "answer": "The destination attribute B1 Name specifies the name of the destination B1-block and is accessible for all Model Levels. [cite: 175, 176]"
+       },
+    {
+         "query": "What attributes are included in the tabular list of the Worksheet for Digital Info Description?",
+         "answer": "The tabular list of the Worksheet for Digital Info Description consists of the following columns: Info Name, Info Text, and Info Type. "
+       },
+    {
+         "query": "What are the main operations that can be performed using the Application Data Info Form?",
+         "answer": "The Application Data Info Form can be used to perform the following operations: View or modify attributes of application data infos, Enter or modify additional information, View, enter or modify calculation attributes of calculated application data infos, and View, enter or modify application data references. "
+       },
+    {
+         "query": "Which two additional buttons does the SDM Toolbar of the Application Data Info Form provide besides the standard seven?",
+         "answer": "The SDM Toolbar of the Application Data Info Form provides 'Query TAs' (Opens the Query Window) and 'Paste' (Inserts technological addresses from the internal clipboard). "
+       },
+    {
+         "query": "When are the 'Query TAs' and 'Paste' buttons enabled in the Application Data Info Form?",
+         "answer": "These two buttons will only be enabled when working with application data references. "
+       },
+    {
+         "query": "What is the main value attribute of an application data info?",
+         "answer": "The main value of the respective application data info is represented by the 'Value' attribute. "
+       },
+    {
+         "query": "What is the input mode 'SDM' for an application data info?",
+         "answer": "The 'SDM' input mode means the info value can be entered or modified via SDM at any time. The entered value will replace the current info value immediately after the job has been executed. "
+       },
+    {
+         "query": "What is the engineering unit attribute of an application data info?",
+         "answer": "The 'Unit' attribute is the engineering unit of the respective application data info. It is a read-only display field. "
+       },
+    {
+         "query": "Can the engineering unit of an application data info be modified via SDM at a later time?",
+         "answer": "No, the engineering unit has been assigned to an application data info during the system’s configuration phase and cannot be modified via SDM at a later time. "
+       },
+    {
+         "query": "How are application data references defined?",
+         "answer": "Application data references define relations between application data elements. "
+       },
+    {
+         "query": "How is a relation defined between application data elements using reference 'terminals'?",
+         "answer": "A relation can be achieved by assigning a technological address to a reference 'terminal' of the respective application data element. "
+       },
+    {
+         "query": "What is the purpose of the Application Data Reference Worksheet?",
+         "answer": "The Application Data Reference Worksheet can be used to view, enter or modify the technological addresses of referenced application data elements. "
+       },
+    {
+         "query": "Which worksheet lists the available application data references for a selected element?",
+         "answer": "The Application Data Reference Worksheet, specifically the Application Data Reference Tabular List, lists the available application data references for a selected application data element. [cite: 191, 192]"
+       },
+    {
+         "query": "What is the function of the Operands Tabular List in the Calculation Worksheet?",
+         "answer": "The Operands Tabular List of the Calculation Worksheet lists the available calculation attributes of the selected application data info. "
+       },
+    {
+         "query": "What is the recommended course of action if a modification is required for the main info value or chosen text alternative of an application data info?",
+         "answer": "If a modification is required, it is recommended to contact a system engineer prior to the modification. "
+       },
+    {
+         "query": "What is the purpose of the Application Data Characteristic Groups Form?",
+         "answer": "This section describes the facilities provided by the Application Data Characteristic Groups Form to view, create or modify application data characteristic groups and their associated application data characteristics. "
+       },
+    {
+         "query": "What is the state of the Application Data Characteristics Tabular List the first time the Application Data Characteristic Groups Form is entered during an SDM session?",
+         "answer": "After the Application Data Characteristic Groups Form has been entered the very first time during a SDM session, the Application Data Characteristic Groups Worksheet shows an empty Application Data Characteristics Tabular List. "
+       },
+    {
+         "query": "What is the Application Data Characteristics Form used for?",
+         "answer": "The Application Data Characteristics Form deals with basic application data characteristic group attributes, attributes of application data characteristics associated with an application data characteristic group and attributes of application data characteristic segments. "
+       },
+    {
+         "query": "What are the three main operations that can be performed using the Application Data Characteristics Form?",
+         "answer": "The Application Data Characteristics Form can be used to perform the following operations: View or modify attributes of application data characteristic groups, View, specify or modify application data characteristics associated with an application data characteristic group, and View, specify or modify segments of application data characteristics. "
+       },
+    {
+         "query": "Which attribute must be entered uniquely for a new application data characteristic?",
+         "answer": "A unique title for the new application data characteristic must be entered into the concerned text field of the column Title. "
+       },
+    {
+         "query": "Which radio button in the worksheet selection group of the Application Data Characteristics Form must be pressed to modify associated segments of a characteristic?",
+         "answer": "The radio button Segments in the worksheet selection group must be pressed to bring up the Characteristic Segments Worksheet and modify the desired attributes in the Characteristic Segments Tabular List. "
+       },
+    {
+         "query": "What happens after applying modifications in the Application Data Characteristics Form?",
+         "answer": "Any of these actions (Apply/OK/Cancel) will close the Application Data Characteristics Form, and the Application Data Characteristic Groups Form will appear again. "
+       },
+    {
+         "query": "What is the purpose of the Master Block of the Circuit Specific Combinations Form?",
+         "answer": "The Master Block of the Circuit Specific Combinations Form contains fields displaying general attributes of the currently selected decision table. "
+       },
+    {
+         "query": "What attribute in the Master Block of the Circuit Specific Combinations Form is used to select another decision table?",
+         "answer": "The 'Number' field shows the number of the decision table. Another decision table may be selected in this field by entering the name or by selecting the name from a list of values. "
+       },
+    {
+         "query": "What is the purpose of the Master Block of the Element Specific Combinations Form?",
+         "answer": "The Master Block of the Element Specific Combinations Form contains fields displaying general attributes of the currently selected decision table. "
+       },
+    {
+         "query": "What is the purpose of the Master Block of the Individual (1:1) Combinations Form?",
+         "answer": "The Master Block of the Individual (1:1) Combinations Form contains fields displaying general attributes of the currently selected decision table. "
+       },
+    {
+         "query": "What is the purpose of the Master Block of the Superior Interlocking Conditions Form?",
+         "answer": "The Master Block of the Superior Interlocking Conditions Form contains fields displaying general attributes of the currently selected decision table. "
+       },
+    {
+         "query": "What is the purpose of the Master Block of the Function Specific Interlocking Conditions Form?",
+         "answer": "The Master Block of the Function Specific Interlocking Conditions Form contains fields displaying general attributes of the currently selected decision table. "
+       },
+    {
+         "query": "What is the essential prerequisite before attempting to set up any import records?",
+         "answer": "Before attempting to set up any records, study the concerned data analysis user guide. "
+       },
+    {
+         "query": "Why should the concerned data analysis user guide be studied before setting up records?",
+         "answer": "It will help you to understand what comprises switchbays, network components, etc. "
+       },
+    {
+         "query": "How is certain data, especially that dealing with configuring the system, enterable?",
+         "answer": "Certain data, especially that which deals with configuring the system, is enterable only through SDM, job files (i.e., BQ jobs) or as system parameters. "
+       },
+    {
+         "query": "What is the requirement for system configuration data (like block types, element types, etc.) relative to the import data?",
+         "answer": "This type of information must be configured into the system before the import data is imported into the system. "
+       },
+    {
+         "query": "What happens if a job interlock exists on your Element Form when trying to modify an element record?",
+         "answer": "You will not be able to apply modifications on any attribute of your element record as long as the job interlock exists. "
+       },
+    {
+         "query": "What happens when you move the cursor out of a modified data record during record level validation and an error occurs?",
+         "answer": "Errors will be indicated if you move the cursor out of the modified data record. If validation fails, an alert window will appear. [cite: 43, 44]"
+       },
+    {
+         "query": "What is the risk of ignoring an error message during item or record level validation?",
+         "answer": "Although SDM will not bother you with error messages beyond the first message, an error message for each uncorrected attribute will be stored in the error message table when you finally commit your changes. [cite: 41, 45]"
+       },
+    {
+         "query": "What is required for Global Validation to be performed?",
+         "answer": "By its nature, Global Validation requires that you have the data in a stable state before you perform it. "
+       },
+    {
+         "query": "When will a hint not be displayed in the window message line of an SDM form?",
+         "answer": "If the previous message was an error message, the hint will not be displayed. "
+       },
+    {
+         "query": "What must you do first if the first action you must perform before you can work with the respective SDM form is a query to retrieve data?",
+         "answer": "The first action you must perform before you can work with the respective SDM form must be a query to retrieve data to work with. "
+       },
+    {
+         "query": "What are the examples of data that must be configured into the system before import data is imported?",
+         "answer": "Some examples of this type of data are: block types, element types, system sizing parameters, formulae used in calculations, characteristic curves used to convert raw data. "
+       },
+    {
+         "query": "What must be done to view the hint related to a currently selected attribute if the hint was not displayed because of a previous error message?",
+         "answer": "If you want the hint to be displayed, click on the input field of another attribute and then click on the input field of the desired attribute again. "
+       },
+    {
+         "query": "What happens to the check boxes in the Query Result Tabular List when the 'All' button is pressed?",
+         "answer": "The check boxes of the selected technological addresses in the column Selected of the Query Result Tabular List are automatically checked. "
+       },
+    {
+         "query": "What is the function of the 'ExitQuery' button in the SDM Toolbar?",
+         "answer": "If the concerned SDM form is in Query Mode, pressing the button ExitQuery leaves the Query Mode without performing a query. "
+       },
+    {
+         "query": "What action creates a new data record when the 'Insert' button is pressed?",
+         "answer": "Pressing the button Insert creates a new data record. If the cursor is located in a tabular list, a new blank row is inserted into the list beneath that row where cursor is located. "
+       },
+    {
+         "query": "What is the function of the 'Clear' button regarding a currently selected data record if data modifications have not been applied?",
+         "answer": "If you did not apply your data modifications on the currently selected data record yet, and you have pressed the button Clear, the entire data record will be removed. "
+       }
+]

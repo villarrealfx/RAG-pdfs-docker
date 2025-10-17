@@ -23,9 +23,9 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
 
-    # --- Variables de Entorno para tu Aplicación RAG ---
+    # --- Variables de Entorno para Aplicación RAG ---
     # Estas se pasarán al entorno del DAG de Airflow
-    # para que pueda conectarse a los servicios RAG (PostgreSQL App, Qdrant)
+    # para poder conectarse a los servicios RAG (PostgreSQL App, Qdrant)
     DB_HOST: ${RAG_DB_HOST}
     DB_PORT: ${RAG_DB_PORT}
     DB_NAME: ${RAG_DB_NAME}
@@ -102,7 +102,6 @@ services:
     volumes:
       - qdrant_storage_volume:/qdrant/storage
     ports:
-      # Expón puertos si necesitas acceder desde fuera de docker-compose (opcional)
       - "6333:6333"
       - "6334:6334"
     restart: always
@@ -140,7 +139,7 @@ services:
       - qdrant
     volumes:
       - ./services/rag-core/data:/app/data
-      - ./services/rag-core/chunks:/app/chunks
+      - ./services/rag-core/retrieval_context:/app/retrieval_context
       - ./services/rag-core/models:/app/models
       - ./services/rag-core:/app
       - ./sdm_manuals:/app/sdm_manuals
@@ -173,9 +172,9 @@ services:
     volumes:
       - ./services/frontend:/app
     depends_on:
-      - postgres_app
-      - qdrant
-      - rag-core
+      rag-core:
+        condition: service_started
+    restart: always
     networks:
       - rag_network
   

@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 
 # Rutas comunes
 DATA_DIR = PROJECT_ROOT / 'data'
-CHUNKS_DATA_DIR = PROJECT_ROOT / 'chunks'
+retrieval_context_DATA_DIR = PROJECT_ROOT / 'retrieval_context'
 UTILS_FILES = PROJECT_ROOT / 'utils'
 MODEL_CACHE_DIR = PROJECT_ROOT / 'models'
 # Rutas data

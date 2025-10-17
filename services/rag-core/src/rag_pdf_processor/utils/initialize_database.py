@@ -207,8 +207,8 @@ def create_feedback_table():
         id SERIAL PRIMARY KEY,
         feedback_id TEXT UNIQUE NOT NULL, -- ID único para cada feedback
         query TEXT NOT NULL,                    -- La pregunta original del usuario
-        llm_response TEXT NOT NULL,             -- La respuesta generada por el LLM
-        chunk_ids TEXT,                         -- IDs de chunks como cadena separada por comas
+        actual_output TEXT NOT NULL,             -- La respuesta generada por el LLM
+        chunk_ids TEXT,                         -- IDs de retrieval_context como cadena separada por comas
         rating INTEGER CHECK (rating >= 1 AND rating <= 5), -- Puntuación del usuario (1-5 estrellas)
         comment TEXT,                           -- Comentario adicional del usuario
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Fecha y hora del feedback
@@ -318,7 +318,7 @@ def initialize_vector_store():
         client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
         
         # Nombre de la colección
-        collection_name = "chunks-hybrid"
+        collection_name = "retrieval_context-hybrid"
         
         # Verificar si la colección existe
         collections = client.get_collections().collections

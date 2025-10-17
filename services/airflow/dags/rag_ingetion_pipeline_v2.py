@@ -13,8 +13,6 @@ import json # Para manejar la respuesta JSON de la API
 # Configuración de logging
 logger = logging.getLogger('airflow.task')
 
-# No necesitamos importar las funciones locales del RAG aquí, ¡FastAPI las maneja!
-
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator, BranchPythonOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
@@ -50,7 +48,7 @@ dag = DAG(
     'rag_ingestion_api_orchestrator',
     default_args=default_args,
     description='Orquestador para el pipeline de ingesta de documentos RAG vía FastAPI',
-    schedule= None,   # "*/15 * * * *", # "*/15 * * * *""
+    schedule= None,  # "*/15 * * * *",
     start_date=datetime(2025, 1, 1),
     catchup=False,
     max_active_runs=1,
@@ -134,14 +132,8 @@ def process_documents_wrapper(**context):
         
         try:
             logger.info(f"📄 Enviando: {file_name} (Hash: {file_hash})")
-            
-            # 1. Leer archivo y preparar datos multipart
-            # Es vital que Airflow tenga acceso al sistema de archivos donde residen los PDF
-            # with open(file_path, 'rb') as f:
-            #     files = {'file': (file_name, f.read(), 'application/pdf')}
-            
-            # 2. Datos de formulario adicionales (hash)
-            # El hash es enviado como dato de formulario para que FastAPI lo reciba
+                        
+            # 1. Envio de Datos (path de archivo y hash)
 
             path_file_clean = f'data/processed/{file_name}'
             data = {
@@ -150,13 +142,12 @@ def process_documents_wrapper(**context):
                 'hash_file': file_hash
                 }
             
-            # 3. Llamar a FastAPI Processing Endpoint (POST con multipart/form-data)
+            # 2. Llamar a FastAPI Processing Endpoint (POST con multipart/form-data)
 
             logger.info(f'datos a enviar: {data} \ntipo de datos: {type(data)}')
 
             response = requests.post(
                 PROCESSING_URL, 
-                # files=files, 
                 json=data, 
                 timeout=3600 # Un timeout largo para el procesamiento de embeddings
             )
@@ -226,7 +217,7 @@ def final_report(**context):
 
 # ===== DEFINICIÓN DE TAREAS Y ORQUESTACIÓN =====
 
-# Tarea ÚNICA que reemplaza a scan_documents, hash_documents y check_processed_status
+# Tarea que aplica las funciones de scan_documents, hash_documents y check_processed_status
 prepare_ingestion_task = BranchPythonOperator(
     task_id='prepare_ingestion_task',
     python_callable=prepare_ingestion_metadata,

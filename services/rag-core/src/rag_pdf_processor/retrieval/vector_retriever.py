@@ -15,7 +15,7 @@ class VectorRetriever:
     def __init__(self, 
                  host: str = "qdrant", 
                  port: int = 6333, 
-                 collection_name: str = "chunks-hybrid",
+                 collection_name: str = "retrieval_context-hybrid",
                  embedding_model: str = "BAAI/bge-small-en-v1.5"):
         """
         Inicializar sistema de búsqueda híbrida
@@ -110,23 +110,23 @@ class VectorRetriever:
             logger.error(f"❌ Error insertando chunk: {e}")
             return False
     
-    def upsert_chunks_batch(self, chunks_data: List[Dict]) -> int:
+    def upsert_retrieval_context_batch(self, retrieval_context_data: List[Dict]) -> int:
         """
-        Insertar múltiples chunks en batch
+        Insertar múltiples retrieval_context en batch
         
         Args:
-            chunks_data: Lista de diccionarios con chunks
+            retrieval_context_data: Lista de diccionarios con retrieval_context
             
         Returns:
-            Número de chunks insertados exitosamente
+            Número de retrieval_context insertados exitosamente
         """
         successful_inserts = 0
         
-        for chunk_data in chunks_data:
+        for chunk_data in retrieval_context_data:
             if self.upsert_chunk(chunk_data):
                 successful_inserts += 1
         
-        logger.info(f"✅ {successful_inserts}/{len(chunks_data)} chunks insertados en '{self.collection_name}'")
+        logger.info(f"✅ {successful_inserts}/{len(retrieval_context_data)} retrieval_context insertados en '{self.collection_name}'")
         return successful_inserts
     
     def hybrid_search(self, query: str, limit: int = 5) -> List[Dict]:
@@ -138,7 +138,7 @@ class VectorRetriever:
             limit: Número de resultados
             
         Returns:
-            Lista de chunks con similitud
+            Lista de retrieval_context con similitud
         """
         try:
             results = self.client.query_points(
@@ -194,7 +194,7 @@ class VectorRetriever:
             use_rerank: Si True, aplica reclasificación de documentos
             
         Returns:
-            Lista de chunks con similitud (posiblemente reclasificados)
+            Lista de retrieval_context con similitud (posiblemente reclasificados)
         """
         # Primero hacer la búsqueda híbrida normal
         results = self.hybrid_search(query, limit=limit*2)  # Buscar más para rerank
@@ -227,7 +227,7 @@ class VectorRetriever:
                                        Si es None, se asume que está disponible o se maneja el error.
 
         Returns:
-            Lista de chunks con similitud (posiblemente reclasificados y basados en la consulta reescrita).
+            Lista de retrieval_context con similitud (posiblemente reclasificados y basados en la consulta reescrita).
         """
         if not llm_interface_for_rewrite:
             logger.warning("⚠️ No se proporcionó LLMInterface para reescritura. Usando la consulta original.")
