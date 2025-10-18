@@ -1,363 +1,183 @@
 # 🤖 RAG-SCADA-Chat 💬
 
-Este proyecto implementa un sistema de **Generación Aumentada por Recuperación (RAG)** utilizando **Modelos de Lenguaje Grande (LLMs)** para transformar manuales técnicos en PDF (operación y mantenimiento de sistemas SCADA eléctricos) en una base de conocimiento conversacional y accesible. Su objetivo es proporcionar **respuestas instantáneas, coherentes y exactas** a las consultas de los usuarios, reduciendo significativamente el tiempo de acceso y rastreo de información en la documentación tradicional.
+This project implements a **Retrieval-Augmented Generation (RAG)** system using **Large Language Models (LLMs)** to transform technical PDF manuals (operation and maintenance of electrical SCADA systems) into a conversational and accessible knowledge base. Its objective is to provide **instant, coherent, and accurate responses** to user queries, significantly reducing the time required to access and search for information in traditional documentation.
 
-## 📌 Caso de Uso e Impacto
+## 📌 Use Case and Impact
 
-En la **industria de transmisión y generación eléctrica**, el acceso rápido a la información de los manuales de operación y mantenimiento de sistemas SCADA es crucial. La dificultad de rastrear datos específicos en extensos archivos PDF se elimina al sistematizar esta documentación como una **Base de Conocimiento** a la que se accede mediante un chat inteligente.
+In the **electrical transmission and generation industry**, rapid access to information from SCADA system operation and maintenance manuals is crucial. The difficulty of tracking specific data in extensive PDF files is eliminated by systematizing this documentation as a **Knowledge Base** accessed through an intelligent chat interface.
 
-El sistema se enfoca en manuales de **SCADA para el control y supervisión de sistemas eléctricos**, ofreciendo:
+The system focuses on **SCADA manuals for controlling and supervising electrical systems**, offering:
 
-  * **Acceso Instantáneo:** Consultas a través de un chat en lugar de búsqueda manual en PDFs.
-  * **Información Específica:** Respuestas directas, coherentes y exactas potenciadas por LLMs.
-  * **Eficiencia Operacional:** Ahorro de tiempo significativo para personal de mantenimiento y operación.
+* **Instant Access:** Queries through a chat interface instead of manual PDF searches
+* **Specific Information:** Direct, coherent, and accurate responses powered by LLMs
+* **Operational Efficiency:** Significant time savings for maintenance and operations personnel
 
 -----
 
-## ⚙️ Arquitectura del Proyecto y Microservicios
+## ⚙️ Project Architecture and Microservices
 
-El proyecto está diseñado como una aplicación de microservicios contenerizada con **Docker**, asegurando escalabilidad y fácil despliegue.
+The project is designed as a containerized microservices application using **Docker**, ensuring scalability and easy deployment.
 
-| Servicio | Tecnología | Descripción de Funcionalidad Principal |
+| Service | Technology | Main Functionality Description |
 | :--- | :--- | :--- |
-| **`rag-core`** | `FastAPI`, `Langchain` | **Núcleo del Backend.** Gestiona la ingesta de documentos, el procesamiento RAG (reescritura, búsqueda híbrida, reranking, consulta a LLM) y la transferencia de respuestas. |
-| **`airflow`** | `Airflow` (DAGs) | **Orquestación de Ingesta.** Programa semanalmente la búsqueda y procesamiento pesado de nuevos PDFs. |
-| **`frontend`** | `Streamlit` | **Interfaz de Usuario (UI).** Permite a los usuarios realizar consultas, visualizar respuestas y enviar evaluaciones (feedback). |
-| **`postgres_app`** | `PostgreSQL` | **Base de Datos de Aplicación.** Almacena metadatos de documentos (hash) y el feedback/evaluación del usuario. |
-| **`postgres`** | `PostgreSQL` | **Base de Datos de Airflow.** Almacena la metadata de la orquestación de Airflow. |
-| **`qdrant`** | `Qdrant` | **Base de Datos Vectorial.** Almacena los *retrieval_context* semánticos y sus vectores para la recuperación RAG. |
+| **`rag-core`** | `FastAPI` `Langchain` `DeepEval` `DeepSeek` `Gemini` `fastembed` `PyMuPDF` | **Backend Core.** Manages document ingestion, RAG processing (query rewriting, hybrid search, reranking, LLM querying), and response delivery. |
+| **`airflow`** | `Airflow` (DAGs) | **Ingestion Orchestration.** Schedules weekly search and heavy processing of new PDFs. |
+| **`frontend`** | `Streamlit` `Pandas` `Plotly` | **User Interface (UI).** Allows users to submit queries, view responses, and provide evaluations (feedback). |
+| **`postgres_app`** | `PostgreSQL` | **Application Database.** Stores document metadata (hash) and user feedback/evaluations. |
+| **`postgres`** | `PostgreSQL` | **Airflow Database.** Stores Airflow orchestration metadata. |
+| **`qdrant`** | `Qdrant` | **Vector Database.** Stores semantic contexts and their vectors for RAG retrieval. |
 
 -----
 
-## 💻 Flujo de Trabajo y Funcionalidad (RAG & Ingesta)
+## 💻 Workflow and Functionality (RAG & Ingestion)
 
-El sistema opera bajo dos flujos principales: la **Ingesta de Documentos (vía Airflow)** y la **Consulta del Usuario (vía Frontend)**.
+The system operates through three main workflows: **Document Ingestion (via Airflow), Continuous Evaluation Automation (via Airflow), and User Query (via Frontend)**.
 
-### 1\. Flujo de Ingesta (Airflow Orquestado)
+### 1. Ingestion Flow (Airflow Orchestrated)
 
-Este proceso se ejecuta mediante un **DAG programado semanalmente** para mantener la Base de Conocimiento actualizada:
+This process runs via a **weekly scheduled DAG** to keep the Knowledge Base updated:
 
-1.  **Búsqueda y Verificación:** `airflow` se conecta a `rag-core` para buscar nuevos PDFs en las carpetas de origen.
-2.  `rag-core` utiliza **hashes** para verificar si un documento ya fue procesado y genera una lista de pendientes.
-3.  **Procesamiento Pesado:** Si hay documentos pendientes, `airflow` desencadena el proceso en `rag-core`.
-      * **Limpieza y Estructuración** de los PDFs.
-      * **Creación de *retrieval_context* Semánticos** (fragmentos de texto).
-      * **Almacenamiento en BBDD:** Los *retrieval_context* y vectores se guardan en **`qdrant`**.
-      * **Almacenamiento de Metadatos:** El hash del documento y otros metadatos se guardan en **`postgres_app`**.
+1. **Search and Verification:** `airflow` connects to `rag-core` to search for new PDFs in source folders
+2. `rag-core` uses **hashes** to verify if a document was already processed and generates a pending list
+3. **Heavy Processing:** If there are pending documents, `airflow` triggers the process in `rag-core`
+   * **Cleaning and Structuring** of PDFs
+   * **Creation of Semantic Contexts** (text chunks)
+   * **Database Storage:** Contexts and vectors are stored in **`qdrant`**
+   * **Metadata Storage:** Document hash and other metadata are stored in **`postgres_app`**
 
-### 2\. Flujo de Consulta (Tiempo Real)
+### 2. Continuous Monitoring and Evaluation Flow (Airflow Orchestrated)
 
-1.  **Consulta de Usuario:** El usuario ingresa una pregunta en la interfaz web de **`frontend`** (`Streamlit`).
-2.  **Procesamiento en `rag-core`:**
-      * **Reescritura de *Query*:** Mejora la consulta inicial para optimizar la búsqueda.
-      * **Búsqueda Híbrida:** Recupera *retrieval_context* relevantes de **`qdrant`**.
-      * ***Reranker*:** Selecciona los *retrieval_context* más significativos.
-      * **Generación de Respuesta:** La *query* optimizada y los *retrieval_context* seleccionados se pasan al **LLM**.
-3.  **Respuesta al Usuario:** `rag-core` envía la respuesta del LLM al `frontend`, incluyendo: el texto de la respuesta, el *score* de relevancia, el resultado del *reranker*, el ID del *chunk* y el texto del *chunk* utilizado.
-4.  **Feedback del Usuario:** El usuario puede enviar una evaluación. El `frontend` tramita esta evaluación, y **`rag-core`** la almacena en **`postgres_app`**.
+This process runs via a **weekly scheduled DAG** for continuous RAG evaluation:
 
------
+1. Calls `rag-core` endpoints to retrieve feedback from the previous week and corresponding expert annotations
+2. Calls the `rag-core` endpoint that executes the evaluation suite with the previously obtained data
+3. Generates a final evaluation execution report and stores it in the database
 
-## ✨ Características Destacadas
+### 3. Query Flow (Real-Time)
 
-  * **Multilenguaje:** Capacidad para **distinguir el idioma** de la consulta y entregar la respuesta en el mismo idioma (**probado en Inglés y Español**).
-  * **Evaluación y Calidad (Deepeval):** Incluye capacidades para realizar **evaluación RAG y LLM** utilizando la librería `deepeval`, asegurando la **coherencia y exactitud** de las respuestas.
-  * **Trazabilidad:** La respuesta incluye metadatos (ID de *chunk*, texto de *chunk*) que permiten al usuario y al sistema rastrear la fuente de la información.
-
------
-
-## 🛠️ Tecnologías Utilizadas
-
-Las siguientes tecnologías son la base de este proyecto de microservicios:
-
-  * **Backend:** `FastAPI`
-  * **Orquestación:** `Airflow`
-  * **Frontend:** `Streamlit`
-  * **BBDD Vectorial:** `Qdrant`
-  * **BBDD Relacional:** `PostgreSQL`
-  * **Framework RAG:** `LangChain`
-  * **Embeddings:** `FastEmbed`
-  * **Contenerización:** `Docker`
-  * **Evaluación:** `Deepeval`
+1. **User Query:** The user enters a question in the **`frontend`** web interface (`Streamlit`)
+2. **Processing in `rag-core`:**
+   * **Query Rewriting:** Enhances the initial query to optimize search
+   * **Hybrid Search:** Retrieves relevant contexts from **`qdrant`**
+   * **Reranker:** Selects the most significant contexts
+   * **Response Generation:** The optimized query and selected contexts are passed to the **LLM**
+3. **Response to User:** `rag-core` sends the LLM's response to the `frontend`, including: the response text, relevance score, reranker result, chunk ID, and the text of the chunk used
+4. **User Feedback:** The user can submit an evaluation. The `frontend` processes this evaluation, and **`rag-core`** stores it in **`postgres_app`**
+5. **The Query UI** interacts with the `rag-core` backend to obtain the necessary data for creating dashboards that graphically display the historical behavior of the RAG system through evaluations, updates, and user/expert feedback
 
 -----
 
-## 🚀 Despliegue (Próximamente)
+## ✨ Key Features
 
-*(En esta sección se incluirían los comandos de Docker/Docker Compose una vez que estén definidos, por ejemplo:)*
-
-```bash
-# 1. Clonar el repositorio
-git clone <URL_DEL_REPOSITORIO>
-cd RAG-SCADA-Chat
-
-# 2. Levantar los microservicios con Docker Compose
-docker-compose up -d --build
-```
-
-**Acceso:**
-
-  * **Frontend (Streamlit):** `http://localhost:8501`
-  * **Airflow UI:** `http://localhost:8080`
-  * **FastAPI Docs (rag-core):** `http://localhost:8000/docs`
-
-  ---
-  ## Nuevo readme (verificar)
-
-  ¡Excelente\! La información sobre el proceso de instalación, el manejo de la base de conocimiento inicial, el *trigger* manual y el archivo de preguntas (`preguntas.json`) son cruciales.
-
-He actualizado la estructura del `README.md` propuesta, añadiendo una sección detallada de **Instalación y Despliegue** con los pasos que has indicado, y he agregado las secciones recomendadas de **Contacto** y **Licencia**.
+* **Multilingual:** Capability to **detect the language** of the query and deliver the response in the same language (**tested in English and Spanish**)
+* **Evaluation and Quality (Deepeval):** Includes capabilities for **RAG and LLM evaluation** using the `deepeval` library, ensuring response **coherence and accuracy**
+* **Traceability:** The response includes metadata (chunk ID, chunk text) that allows the user and the system to trace the source of the information
 
 -----
 
-# 🤖 RAG-SCADA-Chat 💬
+## 🛠️ Technologies Used
 
-Este proyecto implementa un sistema de **Generación Aumentada por Recuperación (RAG)** utilizando **Modelos de Lenguaje Grande (LLMs)** para transformar manuales técnicos en PDF (operación y mantenimiento de sistemas SCADA eléctricos) en una base de conocimiento conversacional y accesible. Su objetivo es proporcionar **respuestas instantáneas, coherentes y exactas** a las consultas de los usuarios, reduciendo significativamente el tiempo de acceso y rastreo de información en la documentación tradicional.
+The following technologies form the foundation of this microservices project:
 
------
-
-## 📌 Caso de Uso e Impacto
-
-En la **industria de transmisión y generación eléctrica**, el acceso rápido a la información de los manuales de operación y mantenimiento de sistemas SCADA es crucial. La dificultad de rastrear datos específicos en extensos archivos PDF se elimina al sistematizar esta documentación como una **Base de Conocimiento** a la que se accede mediante un chat inteligente.
-
-El sistema se enfoca en manuales de **SCADA para el control y supervisión de sistemas eléctricos**, ofreciendo:
-
-  * **Acceso Instantáneo:** Consultas a través de un chat en lugar de búsqueda manual en PDFs.
-  * **Información Específica:** Respuestas directas, coherentes y exactas potenciadas por LLMs.
-  * **Eficiencia Operacional:** Ahorro de tiempo significativo para personal de mantenimiento y operación.
-
------
-
-## ⚙️ Arquitectura del Proyecto y Microservicios
-
-El proyecto está diseñado como una aplicación de microservicios contenerizada con **Docker**, asegurando escalabilidad y fácil despliegue.
-
-| Servicio | Tecnología | Descripción de Funcionalidad Principal |
-| :--- | :--- | :--- |
-| **`rag-core`** | `FastAPI`, `Langchain` | **Núcleo del Backend.** Gestiona la ingesta de documentos, el procesamiento RAG (reescritura, búsqueda híbrida, reranking, consulta a LLM) y la transferencia de respuestas. |
-| **`airflow`** | `Airflow` (DAGs) | **Orquestación de Ingesta.** Programa semanalmente la búsqueda y procesamiento pesado de nuevos PDFs. |
-| **`frontend`** | `Streamlit` | **Interfaz de Usuario (UI).** Permite a los usuarios realizar consultas, visualizar respuestas y enviar evaluaciones (feedback). |
-| **`postgres_app`** | `PostgreSQL` | **Base de Datos de Aplicación.** Almacena metadatos de documentos (hash) y el feedback/evaluación del usuario. |
-| **`postgres`** | `PostgreSQL` | **Base de Datos de Airflow.** Almacena la metadata de la orquestación de Airflow. |
-| **`qdrant`** | `Qdrant` | **Base de Datos Vectorial.** Almacena los *retrieval_context* semánticos y sus vectores para la recuperación RAG. |
+* **Backend:** `FastAPI`
+* **Orchestration:** `Airflow`
+* **Frontend:** `Streamlit`
+* **Vector Database:** `Qdrant`
+* **Relational Database:** `PostgreSQL`
+* **RAG Framework:** `LangChain`
+* **Embeddings:** `FastEmbed`
+* **Containerization:** `Docker`
+* **Evaluation:** `Deepeval`
+* **LLMs:** `DeepSeek` `Gemini`
 
 -----
 
-## 🚀 Instalación y Despliegue
+## 🚀 Installation and Deployment
 
-Sigue los siguientes pasos para levantar la aplicación y procesar la base de conocimiento inicial:
+Follow these steps to set up the application and process the initial knowledge base:
 
-### 1\. Requisitos Previos
+### 1. Prerequisites
 
-Asegúrate de tener instalado:
+Ensure you have installed:
 
-  * **Docker**
-  * **Docker Compose**
+* **Docker**
+* **Docker Compose**
 
-### 2\. Pasos de Despliegue
+### 2. Deployment Steps
 
-1.  **Clonar el Repositorio:**
-
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd RAG-SCADA-Chat
-    ```
-
-2.  **Configurar Variables de Entorno:**
-
-      * Copia el archivo de ejemplo y reconfíguralo:
-        ```bash
-        cp .env.example .env
-        ```
-      * **Edita el archivo `.env`** para completar las variables necesarias (puertos, credenciales de bases de datos, claves de APIs si son requeridas por los LLMs, etc.).
-
-3.  **Levantar los Microservicios:**
-
-    ```bash
-    docker-compose up -d --build
-    ```
-
-    Esto inicializará todos los servicios (FastAPI, Airflow, Streamlit, Qdrant y PostgreSQL).
-
-### 3\. Carga de Base de Conocimiento Inicial
-
-Para que la aplicación funcione, es necesario cargar los manuales PDF en la carpeta que el servicio `rag-core` monitorea.
-
-1.  **Mover Archivos PDF:**
-
-      * Copia los archivos PDF de la carpeta `Manuales pdfs` a la ruta interna de `rag-core`:
-        ```bash
-        cp Manuales\ pdfs/* service/rag-core/data/raw/
-        ```
-      * **Nota de Procesamiento:** Mover **todos** los manuales puede requerir hasta **90 minutos (1 hora y 30 minutos)** en equipos con recursos limitados. Para una prueba inicial rápida, se recomienda mover solo **1 o 2 manuales**.
-
-2.  **Lanzar el *Trigger* de Ingesta:**
-
-      * Una vez que los archivos están en la carpeta, dirígete a la interfaz web de Airflow: `http://localhost:8080`.
-      * Inicia sesión con las credenciales configuradas en el `.env`.
-      * Busca el DAG llamado **`scada_rag_ingestion_dag`** y lánzalo manualmente (*trigger*).
-      * Este proceso se conectará con `rag-core` para iniciar la limpieza, *chunking* y almacenamiento vectorial en **Qdrant**.
-
-### 4\. Consultas y Evaluación
-
-1.  **Acceder al Frontend:** Una vez completado el procesamiento del DAG, accede a la interfaz de chat: `http://localhost:8501`.
-2.  **Realizar Consultas:** Utiliza el chat para realizar preguntas sobre el contenido de los manuales procesados.
-3.  **Preguntas de Referencia:** El archivo **`preguntas.json`** contiene un set de preguntas formuladas por un experto en SCADA SDM. Utiliza estas preguntas como referencia para:
-      * Verificar las respuestas esperadas.
-      * Ejecutar los *scripts* de **Deepeval** para la evaluación de la calidad RAG y LLM.
-
------
-
-## ✨ Características Destacadas
-
-  * **Multilenguaje:** Capacidad para **distinguir el idioma** de la consulta y entregar la respuesta en el mismo idioma (**probado en Inglés y Español**).
-  * **Evaluación y Calidad (Deepeval):** Incluye capacidades para realizar **evaluación RAG y LLM** utilizando la librería `deepeval`, asegurando la **coherencia y exactitud** de las respuestas.
-  * **Trazabilidad:** La respuesta incluye metadatos (ID de *chunk*, texto de *chunk*) que permiten al usuario y al sistema rastrear la fuente de la información.
-
------
-
-## 🛠️ Tecnologías Utilizadas
-
-`Postgres`, `Qdrant`, `Airflow`, `Streamlit`, `FastAPI`, `LangChain`, `FastEmbed`, `Docker`, `Deepeval`.
-
------
-
-## 📞 Contacto
-
-Si tienes preguntas, sugerencias o quieres colaborar con el proyecto, puedes contactar al desarrollador principal a través de:
-
-  * **Nombre:** Carlos Villarreal P.
-  * **Correo Electrónico:** `villarreal.fx@gmail.com`
-  * **LinkedIn:** `[Tu Perfil de LinkedIn]`
-
------
-
-## 📜 Licencia
-
-Este proyecto está bajo la Licencia **[Indica el tipo de licencia, e.g., MIT, Apache 2.0]**. Consulta el archivo `LICENSE` para más detalles.
-
-***
-
-## 🔬 Guía de Uso y Demostración
-
-Para una demostración visual y un recorrido paso a paso sobre cómo usar la aplicación, desde el lanzamiento del *trigger* de Airflow hasta la realización de consultas en el *frontend* y la evaluación RAG, consulta nuestro tutorial detallado:
-
-➡️ **[TUTORIAL COMPLETO DE USO Y VALIDACIÓN](TUTORIAL.md)**
-
-En el tutorial encontrarás:
-* Capturas de pantalla del *trigger* manual de Airflow.
-* Ejemplos de consultas utilizando las preguntas de `preguntas.json`.
-* Cómo se visualiza el *feedback* y la trazabilidad de los *retrieval_context* en la interfaz de usuario.
-
-
----
-
-## Qwen
-
-# Sistema de Consulta de Manuales Técnicos basado en RAG
-
-## Índice
-
-- [Descripción General](#descripción-general)
-- [Arquitectura del Proyecto](#arquitectura-del-proyecto)
-  - [Servicio `rag-core`](#servicio-rag-core)
-  - [Servicio `airflow`](#servicio-airflow)
-  - [Servicio `frontend`](#servicio-frontend)
-  - [Servicio `postgres`](#servicio-postgres)
-  - [Servicio `postgres_app`](#servicio-postgres_app)
-  - [Servicio `qdrant`](#servicio-qdrant)
-- [Tecnologías Utilizadas](#tecnologías-utilizadas)
-- [Características Especiales](#características-especiales)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Evaluación del Sistema](#evaluación-del-sistema)
-- [Contribuciones](#contribuciones)
-- [Licencia](#licencia)
-
----
-
-## Descripción General
-
-Este proyecto aborda el desafío de acceder rápidamente a la información contenida en manuales de mantenimiento, operación y bitácoras técnicas, comúnmente almacenados en archivos PDF, lo que dificulta su consulta eficiente. Utilizando tecnologías de vanguardia como **RAG (Retrieval-Augmented Generation)** y **Modelos de Lenguaje de Gran Tamaño (LLMs)**, se sistematiza esta información en una **base de conocimiento** consultable a través de un **chat interactivo**.
-
-La aplicación proporciona respuestas específicas, coherentes, exactas e instantáneas, mejorando significativamente la experiencia del usuario. Se ha aplicado específicamente a manuales de operación y mantenimiento de un sistema **SCADA** para el control y supervisión de sistemas eléctricos de transmisión y generación.
-
-El sistema está construido como una arquitectura de **microservicios** que se ejecutan en contenedores **Docker**. Incluye un proceso de **limpieza y procesamiento de PDFs**, almacenamiento en bases de datos vectoriales y relacionales, y una interfaz web intuitiva.
-
----
-
-## Arquitectura del Proyecto
-
-El sistema se compone de los siguientes servicios:
-
-### Servicio `rag-core`
-
-Es el **núcleo** de la aplicación. Es una **API construida con FastAPI** que maneja toda la lógica de backend:
-
-- **Búsqueda y verificación de documentos**: Busca PDFs en carpetas, verifica si ya han sido procesados usando un hash y mantiene una lista de documentos pendientes.
-- **Procesamiento de documentos**: Limpia, estructura, crea *retrieval_context* semánticos y los almacena en la base de datos vectorial (Qdrant).
-- **Almacenamiento de metadatos**: Guarda el hash del documento en PostgreSQL.
-- **Procesamiento de consultas**: Recibe consultas del frontend, realiza reescritura de la *query*, búsqueda híbrida en la base de datos vectorial, aplica *reranking*, selecciona los *retrieval_context* más relevantes y los envía junto con la consulta a un LLM.
-- **Respuesta del LLM**: Recibe la respuesta del LLM y la transfiere al frontend, incluyendo métricas como *score*, *reranker*, ID del *chunk* y su texto.
-- **Evaluación del usuario**: Recibe y almacena en PostgreSQL la evaluación que el usuario proporciona sobre la respuesta.
-
-### Servicio `airflow`
-
-Orquesta tareas de procesamiento mediante un **DAG programado** (por ejemplo, semanalmente):
-
-- **Sincronización con `rag-core`**: Consulta si hay nuevos documentos para procesar.
-- **Procesamiento pesado**: Si existen documentos pendientes, coordina con `rag-core` para iniciar el procesamiento detallado de PDFs.
-
-### Servicio `frontend`
-
-Es la **interfaz web** desarrollada con **Streamlit**:
-
-- **Consulta del usuario**: Presenta una interfaz donde el usuario puede realizar preguntas.
-- **Visualización de respuestas**: Muestra la respuesta recibida de `rag-core`.
-- **Evaluación del usuario**: Permite al usuario evaluar la calidad de la respuesta y enviar esa evaluación a `rag-core`.
-
-### Servicio `postgres`
-
-Base de datos **PostgreSQL** dedicada al almacenamiento de metadatos y estado de los **workflows de Airflow**.
-
-### Servicio `postgres_app`
-
-Base de datos **PostgreSQL** dedicada al almacenamiento de **datos de la aplicación**, incluyendo **feedback de usuarios**.
-
-### Servicio `qdrant`
-
-**Base de datos vectorial** utilizada para almacenar los *retrieval_context* semánticos y sus representaciones vectoriales, facilitando la recuperación eficiente de información relevante.
-
----
-
-## Tecnologías Utilizadas
-
-- **FastAPI**: Framework web para la API backend.
-- **Streamlit**: Framework para la interfaz web.
-- **LangChain**: Framework para trabajar con LLMs y RAG.
-- **FastEmbedding**: Para la generación de embeddings.
-- **Qdrant**: Base de datos vectorial.
-- **PostgreSQL**: Base de datos relacional para metadatos y feedback.
-- **Apache Airflow**: Orquestador de flujos de trabajo.
-- **Docker**: Contenerización de microservicios.
-- **DeepEval**: Para la evaluación del sistema RAG y LLM.
-- **Otras**: Python, etc.
-
----
-
-## Características Especiales
-
-- **Soporte multilenguaje**: El sistema puede detectar el idioma de la consulta (probado en **Inglés** y **Español**) y responder en el mismo idioma.
-- **Evaluación continua**: Integración de **DeepEval** para evaluar la calidad del sistema RAG y LLM.
-- **Almacenamiento persistente**: Uso de PostgreSQL para metadatos y feedback, y Qdrant para información vectorizada.
-- **Automatización**: Procesamiento de nuevos documentos gestionado por un DAG de Airflow.
-
----
-
-## Instalación
-
-1. Clona este repositorio:
+1. **Clone the Repository:**
 
    ```bash
-   git clone <URL_DEL_REPOSITORIO>
-   cd <NOMBRE_DEL_REPOSITORIO>
+   git clone <REPOSITORY_URL>
+   cd RAG-SCADA-Chat
+   ```
+
+2. **Configure Environment Variables:**
+
+   * Copy the example file and reconfigure it:
+     ```bash
+     cp .env.example .env
+     ```
+   * **Edit the `.env` file** to complete the necessary variables (ports, database credentials, API keys if required by the LLMs, etc.)
+
+3. **Start the Microservices:**
+
+   ```bash
+   docker-compose up -d --build
+   ```
+
+   This will initialize all services: `rag-core` (FastAPI), `airflow`, `frontend` (Streamlit), `Qdrant`, and `PostgreSQL`
+
+### 3. Initial Knowledge Base Loading
+
+For the application to function, it's necessary to load the PDF manuals into the folder monitored by the `rag-core` service.
+
+1. **Move PDF Files:**
+
+   * Copy the PDF files from the `Manuales pdfs` folder to the internal path of `rag-core`:
+     ```bash
+     cp manuales_pdfs/* service/rag-core/data/raw/
+     ```
+   * **Processing Note:**
+     Moving **all** manuals may require up to **90 minutes (1 hour and 30 minutes)** on resource-limited machines. For an initial quick test, it's recommended to move only **1 or 2 manuals**.
+     All models are loaded at startup, so the system initialization may take a few minutes.
+
+2. **Trigger the Ingestion Process:**
+
+   * Once the files are in the folder, navigate to the Airflow web interface: `http://localhost:8080`
+   * Log in with the credentials configured in the `.env` file
+   * Find the DAG named **`rag_ingetion_pipeline_v2.py`** and trigger it manually
+   * This process will connect with `rag-core` to initiate cleaning, chunking, and vector storage in **Qdrant**
+
+### 4. Queries and Evaluation
+
+1. **Access the Frontend:** Once the DAG processing is complete, access the chat interface: `http://localhost:8501`
+2. **Submit Queries:** Use the chat to ask questions about the content of the processed manuals
+3. **Reference Questions:** The **`questions.json`** file contains a set of questions formulated by an SCADA SDM expert. Use these questions as a reference to:
+   * Verify expected answers
+   * Execute **Deepeval** scripts for RAG and LLM quality evaluation
+
+-----
+
+## 📞 Contact
+
+If you have questions, suggestions, or want to collaborate on the project, you can contact the main developer through:
+
+* **Name:** Carlos Villarreal P.
+* **Email:** `villarreal.fx@gmail.com`
+* **LinkedIn:** [`linkedin.com/in/carlos-villarreal-paredes/`](https://www.linkedin.com/in/carlos-villarreal-paredes/)
+
+-----
+
+## 🔬 Usage Guide and Demonstration
+
+For a visual demonstration and a step-by-step guide on how to use the application, from triggering the Airflow process to making queries in the frontend and performing RAG evaluation, consult our detailed tutorial:
+
+➡️ **[COMPLETE USAGE AND VALIDATION TUTORIAL](TUTORIAL.md)**
+
+In the tutorial you will find:
+* Screenshots of the manual Airflow trigger
+* Query examples using the questions from `preguntas.json`
+* How feedback and context traceability are displayed in the user interface
+
+---

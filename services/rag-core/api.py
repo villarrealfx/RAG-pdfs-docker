@@ -188,6 +188,15 @@ class EvaluationMetric(BaseModel):
 class GetEvaluationResultsResponse(BaseModel):
     results: List[EvaluationMetric]
 
+# Modelo de respuesta
+class FeedbackRatingCount(BaseModel):
+    rating: int
+    count: int
+
+class GetFeedbackRatingsResponse(BaseModel):
+    ratings: List[FeedbackRatingCount]
+
+
 ### ------------------------------------------------------------------- ###
 
 # --- 5. FUNCIONES AUXILIARES ---
@@ -792,6 +801,34 @@ async def get_evaluation_results(
         raise HTTPException(
             status_code=500,
             detail="Fallo interno del servidor al intentar obtener los resultados."
+        )
+    
+# Endpoint para obtener conteo de ratings de feedback
+@app.get("/get_feedback_ratings", response_model=GetFeedbackRatingsResponse)
+async def get_feedback_ratings():
+    """
+    **Endpoint: Obtener conteo de ratings del feedback de usuarios.**
+    """
+    try:
+        query_sql = """
+            SELECT rating, COUNT(*) as count
+            FROM user_feedback
+            WHERE rating IS NOT NULL -- Asegura que el rating no sea nulo
+            GROUP BY rating
+            ORDER BY rating ASC;
+        """
+        rows = execute_query(user='appuser', query=query_sql, fetch=True)
+
+        ratings_data = [FeedbackRatingCount(rating=row['rating'], count=row['count']) for row in rows]
+
+        print(ratings_data)
+
+        return GetFeedbackRatingsResponse(ratings=ratings_data)
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al obtener conteo de ratings de feedback: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar obtener los conteos."
         )
     
 ### ---------------------------------------------------------------------- ###

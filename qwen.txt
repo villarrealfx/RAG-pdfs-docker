@@ -1,0 +1,109 @@
+## Qwen
+
+# Sistema de Consulta de Manuales Técnicos basado en RAG
+
+## Índice
+
+- [Descripción General](#descripción-general)
+- [Arquitectura del Proyecto](#arquitectura-del-proyecto)
+  - [Servicio `rag-core`](#servicio-rag-core)
+  - [Servicio `airflow`](#servicio-airflow)
+  - [Servicio `frontend`](#servicio-frontend)
+  - [Servicio `postgres`](#servicio-postgres)
+  - [Servicio `postgres_app`](#servicio-postgres_app)
+  - [Servicio `qdrant`](#servicio-qdrant)
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Características Especiales](#características-especiales)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Evaluación del Sistema](#evaluación-del-sistema)
+- [Contribuciones](#contribuciones)
+- [Licencia](#licencia)
+
+---
+
+## Descripción General
+
+Este proyecto aborda el desafío de acceder rápidamente a la información contenida en manuales de mantenimiento, operación y bitácoras técnicas, comúnmente almacenados en archivos PDF, lo que dificulta su consulta eficiente. Utilizando tecnologías de vanguardia como **RAG (Retrieval-Augmented Generation)** y **Modelos de Lenguaje de Gran Tamaño (LLMs)**, se sistematiza esta información en una **base de conocimiento** consultable a través de un **chat interactivo**.
+
+La aplicación proporciona respuestas específicas, coherentes, exactas e instantáneas, mejorando significativamente la experiencia del usuario. Se ha aplicado específicamente a manuales de operación y mantenimiento de un sistema **SCADA** para el control y supervisión de sistemas eléctricos de transmisión y generación.
+
+El sistema está construido como una arquitectura de **microservicios** que se ejecutan en contenedores **Docker**. Incluye un proceso de **limpieza y procesamiento de PDFs**, almacenamiento en bases de datos vectoriales y relacionales, y una interfaz web intuitiva.
+
+---
+
+## Arquitectura del Proyecto
+
+El sistema se compone de los siguientes servicios:
+
+### Servicio `rag-core`
+
+Es el **núcleo** de la aplicación. Es una **API construida con FastAPI** que maneja toda la lógica de backend:
+
+- **Búsqueda y verificación de documentos**: Busca PDFs en carpetas, verifica si ya han sido procesados usando un hash y mantiene una lista de documentos pendientes.
+- **Procesamiento de documentos**: Limpia, estructura, crea *retrieval_context* semánticos y los almacena en la base de datos vectorial (Qdrant).
+- **Almacenamiento de metadatos**: Guarda el hash del documento en PostgreSQL.
+- **Procesamiento de consultas**: Recibe consultas del frontend, realiza reescritura de la *query*, búsqueda híbrida en la base de datos vectorial, aplica *reranking*, selecciona los *retrieval_context* más relevantes y los envía junto con la consulta a un LLM.
+- **Respuesta del LLM**: Recibe la respuesta del LLM y la transfiere al frontend, incluyendo métricas como *score*, *reranker*, ID del *chunk* y su texto.
+- **Evaluación del usuario**: Recibe y almacena en PostgreSQL la evaluación que el usuario proporciona sobre la respuesta.
+
+### Servicio `airflow`
+
+Orquesta tareas de procesamiento mediante un **DAG programado** (por ejemplo, semanalmente):
+
+- **Sincronización con `rag-core`**: Consulta si hay nuevos documentos para procesar.
+- **Procesamiento pesado**: Si existen documentos pendientes, coordina con `rag-core` para iniciar el procesamiento detallado de PDFs.
+
+### Servicio `frontend`
+
+Es la **interfaz web** desarrollada con **Streamlit**:
+
+- **Consulta del usuario**: Presenta una interfaz donde el usuario puede realizar preguntas.
+- **Visualización de respuestas**: Muestra la respuesta recibida de `rag-core`.
+- **Evaluación del usuario**: Permite al usuario evaluar la calidad de la respuesta y enviar esa evaluación a `rag-core`.
+
+### Servicio `postgres`
+
+Base de datos **PostgreSQL** dedicada al almacenamiento de metadatos y estado de los **workflows de Airflow**.
+
+### Servicio `postgres_app`
+
+Base de datos **PostgreSQL** dedicada al almacenamiento de **datos de la aplicación**, incluyendo **feedback de usuarios**.
+
+### Servicio `qdrant`
+
+**Base de datos vectorial** utilizada para almacenar los *retrieval_context* semánticos y sus representaciones vectoriales, facilitando la recuperación eficiente de información relevante.
+
+---
+
+## Tecnologías Utilizadas
+
+- **FastAPI**: Framework web para la API backend.
+- **Streamlit**: Framework para la interfaz web.
+- **LangChain**: Framework para trabajar con LLMs y RAG.
+- **FastEmbedding**: Para la generación de embeddings.
+- **Qdrant**: Base de datos vectorial.
+- **PostgreSQL**: Base de datos relacional para metadatos y feedback.
+- **Apache Airflow**: Orquestador de flujos de trabajo.
+- **Docker**: Contenerización de microservicios.
+- **DeepEval**: Para la evaluación del sistema RAG y LLM.
+- **Otras**: Python, etc.
+
+---
+
+## Características Especiales
+
+- **Soporte multilenguaje**: El sistema puede detectar el idioma de la consulta (probado en **Inglés** y **Español**) y responder en el mismo idioma.
+- **Evaluación continua**: Integración de **DeepEval** para evaluar la calidad del sistema RAG y LLM.
+- **Almacenamiento persistente**: Uso de PostgreSQL para metadatos y feedback, y Qdrant para información vectorizada.
+- **Automatización**: Procesamiento de nuevos documentos gestionado por un DAG de Airflow.
+
+---
+
+## Instalación
+
+1. Clona este repositorio:
+
+   ```bash
+   git clone <URL_DEL_REPOSITORIO>
+   cd <NOMBRE_DEL_REPOSITORIO>
