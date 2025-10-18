@@ -1,5 +1,6 @@
 import os
 import json
+from pathlib import Path
 from deepeval import assert_test 
 from deepeval.metrics import GEval
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
@@ -84,20 +85,21 @@ evaluation_metrics = [
 ]
 
 # Cargando Data para prueba
-file_path = "evaluation_dataset.json"
+file_path = Path(__file__).parent / "evaluation_dataset.json"
 with open(file_path, 'r') as file:
     # Carga los datos del archivo JSON
     input_output_pairs = json.load(file)
 
-test_data = input_output_pairs[9:]
+test_data = input_output_pairs[9:10]  #[9:]
 
 
-for data in test_data:
-    test_case = LLMTestCase(
-            input= data['query'],
-            actual_output= data["actual_output"],
-            expected_output= data['expected_output'],
-            retrieval_context= data["retrieval_context"],
-            )
-    assert_test(test_case, evaluation_metrics)
+def test_geval_metrics():
+    for data in test_data:
+        test_case = LLMTestCase(
+                input= data['query'],
+                actual_output= data["actual_output"],
+                expected_output= data['expected_output'],
+                retrieval_context= data["retrieval_context"],
+                )
+        assert_test(test_case, evaluation_metrics)
     

@@ -195,6 +195,119 @@ if (st.session_state.last_query and st.session_state.last_response and
             else:
                 st.warning("Por favor, selecciona una calificación antes de enviar.")
 
+#### ------------------------------------------------------------------ ####
+# --- Sección de Gráficos de Evaluación ---
+st.divider()
+st.subheader("📈 Evaluación del RAG")
+
+# Inicializar estado para mostrar/ocultar la sección de gráficos
+if 'show_evaluation_charts' not in st.session_state:
+    st.session_state.show_evaluation_charts = False
+
+# Botón para mostrar/ocultar gráficos
+if st.button("Mostrar/Ocultar Gráficos de Evaluación"):
+    st.session_state.show_evaluation_charts = not st.session_state.show_evaluation_charts
+
+if st.session_state.show_evaluation_charts:
+    st.info("Cargando gráficos de evaluación desde la API...")
+
+    # --- Parámetros de Filtrado ---
+    col1, col2 = st.columns(2)
+    with col1:
+        # Opcional: Permitir filtrar por run_id si se conocen ejecuciones específicas
+        run_id_filter = st.text_input("Filtrar por Run ID (opcional):", "")
+    with col2:
+        # Filtrar por rango de fechas
+        use_date_filter = st.checkbox("Filtrar por rango de fechas")
+        start_date_filter = None
+        end_date_filter = None
+        if use_date_filter:
+            start_date_filter = st.date_input("Fecha Desde", value=None)
+            end_date_filter = st.date_input("Fecha Hasta", value=None)
+
+    # Botón para cargar datos y graficar
+    if st.button("Actualizar Gráficos"):
+        # Construir parámetros de la URL
+        params = {}
+        if run_id_filter:
+            params['run_id'] = run_id_filter
+        if start_date_filter:
+            params['start_date'] = start_date_filter.isoformat() # Convertir a string
+        if end_date_filter:
+            params['end_date'] = end_date_filter.isoformat()
+
+        try:
+            # Llamar al nuevo endpoint
+            url = f"{API_BASE_URL}/get_evaluation_results"
+            response = requests.get(url, params=params, timeout=600) # Ajusta timeout si es necesario
+            response.raise_for_status()
+            data = response.json()
+            results = data.get('results', [])
+
+            if not results:
+                st.warning("No se encontraron datos de evaluación con los filtros aplicados.")
+            else:
+                import pandas as pd
+                import plotly.express as px
+
+                # Convertir a DataFrame
+                df = pd.DataFrame(results)
+                df['run_timestamp'] = pd.to_datetime(df['run_timestamp']) # Asegurar tipo datetime
+
+                # Mostrar datos crudos (opcional, para debugging)
+                # st.dataframe(df)
+
+                # Gráfico 1: Métricas por valor (barras agrupadas por métrica)
+                st.subheader("Métricas por Valor (Agrupadas por Métrica)")
+                if not df.empty:
+                    # Agrupar por métrica y calcular promedio (o tomar el valor si es por run/query)
+                    # Para simplificar, mostramos todos los valores de cada métrica
+                    fig1 = px.bar(df, x='metric_name', y='metric_value',
+                                 title='Valor de Métricas',
+                                 color='run_id', # Diferenciar ejecuciones
+                                 hover_data=['query_text', 'evaluation_suite', 'model_name', 'run_timestamp'])
+                    st.plotly_chart(fig1, use_container_width=True)
+
+                # Gráfico 2: Evolución de Métricas por Run (Líneas)
+                st.subheader("Evolución de Métricas por Run (Timestamp)")
+                if not df.empty:
+                    # Agrupar por run_timestamp y metric_name, promediando metric_value
+                    # (o tomando el valor si es por run_id específico)
+                    df_grouped = df.groupby(['run_timestamp', 'metric_name'])['metric_value'].mean().reset_index()
+                    fig2 = px.line(df_grouped, x='run_timestamp', y='metric_value', color='metric_name',
+                                   title='Evolución de Métricas a lo largo del tiempo (Promedio por ejecución)',
+                                   markers=True)
+                    st.plotly_chart(fig2, use_container_width=True)
+
+                # Gráfico 3: Métricas por Query (Radar)
+                st.subheader("Perfil de Métricas por Query (Selecciona una ejecución y una query)")
+                if not df.empty:
+                    # Filtrar por run_id para el radar
+                    available_runs = df['run_id'].unique()
+                    selected_run_radar = st.selectbox("Selecciona un Run ID para el gráfico de radar", available_runs, key="radar_run")
+                    df_radar = df[df['run_id'] == selected_run_radar]
+
+                    available_queries = df_radar['query_text'].unique()
+                    selected_query_radar = st.selectbox("Selecciona una Query", available_queries, key="radar_query")
+                    df_radar = df_radar[df_radar['query_text'] == selected_query_radar]
+
+                    if not df_radar.empty:
+                        fig3 = px.line_polar(df_radar, r='metric_value', theta='metric_name',
+                                             line_close=True,
+                                             title=f'Perfil de Métricas para Run: {selected_run_radar} | Query: {selected_query_radar[:50]}...')
+                        st.plotly_chart(fig3, use_container_width=True)
+                    else:
+                        st.warning("No hay datos para el Run ID y Query seleccionados.")
+
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error al llamar a /get_evaluation_results: {e}")
+            st.error(f"❌ Error al obtener los resultados de evaluación: {e}")
+        except Exception as e:
+            logger.error(f"Error inesperado al procesar los resultados de evaluación: {e}")
+            st.error(f"❌ Error inesperado al procesar los resultados: {e}")
+
+#### ------------------------------------------------------------------ ####
 
 st.divider()
 st.caption("Sistema RAG desarrollado con Python, FastAPI, y Streamlit.")

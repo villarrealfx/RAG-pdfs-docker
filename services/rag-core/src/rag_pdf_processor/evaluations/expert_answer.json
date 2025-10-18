@@ -1,0 +1,45 @@
+{
+  "annotations": [
+    {
+      "feedback_id": "22c19f550e83",
+      "expected_output": "When the 'Disinherit' button is pressed, the fields in the tabular list become available for manual input, allowing new data to be entered, and the button itself changes to 'Reinherit'."
+    },
+    {
+      "feedback_id": "ba7876251668",
+      "expected_output": "Multisite data are automatically inherited by all subordinate B2 and B3 blocks from their parent B1 block. This inheritance can be overwritten by pressing the 'Disinherit' button, which releases the fields for new data input. To revert back to the inherited data, the 'Reinherit' button can be pressed."
+    },
+    {
+      "feedback_id": "d6fef162cf35",
+      "expected_output": "The Circuit Specific Combinations Form is used for handling decision tables for standardized logical operations. It allows the definition of rules to combine any information within a block (B1, B2, or B3). This form is preferably used for all different logical operations within one network element group."
+    },
+    {
+      "feedback_id": "82a4dcded4c8",
+      "expected_output": "The Master Block of the Circuit Specific Combinations Form displays general attributes of the currently selected decision table, including the 'Number' field which shows the decision table's number and allows selection of another table by entering or selecting its name from a list."
+    },
+    {
+      "feedback_id": "1db64c484e05",
+      "expected_output": "The Model Form allows you to duplicate an entire data hierarchy (like a substation or switchbay) in the database. The key attributes in its Detail Block are: Model Level (the hierarchical level to be copied), Change Detection (checkbox to record changes in the log), Model Connectivity Information (checkbox to copy connectivity data), and Model Network Analysis Data (checkbox to copy network analysis data)."
+    },
+    {
+      "feedback_id": "1f3a34bcff01",
+      "expected_output": "The hierarchical structure consists of: 1) a record for each DMS Area, 2) within a DMS Area, a record for every element of that area, 3) within each element, a record for every info of that element, which may have sub-info records. Following the area record group, there is 4) a record for each voltage or feeder level in a DMS area, 5) within each voltage/feeder level, a record for every element, and 6) within each element, a record for every info. Furthermore, 7) within a voltage/feeder level, there can be a record for each equipment type (e.g., Busbar, Generating Unit)."
+    },
+    {
+      "feedback_id": "049d6e1d00b6",
+      "expected_output": "A voltage level is defined as the basic subdivision of a station. It includes all equipment in a station that operates at a particular nominal voltage. A station may contain equipment operating at one or more nominal voltages, meaning it can have multiple voltage levels."
+    },
+    {
+      "feedback_id": "4b7828b93065",
+      "expected_output": "The Command Block of the Task Log Form contains the following buttons: Cancel (exits the form), Cancel Last Task (cancels the most recent task and removes its data changes), Clear Task Errors (clears errors for the selected task), Clear Job Errors (clears errors for all tasks of the job), Clear Task Trace (clears trace messages for the selected task), and Clear Job Trace (clears trace messages for all tasks of the job)."
+    },
+    {
+      "feedback_id": "4ffc0dc3ea02",
+      "expected_output": "The 'Model' button allows you to create a new info type by using an existing info type as a model."
+    },
+    {
+      "feedback_id": "08bd34c0c0e7",
+      "expected_output": "The following forms are provided for defining new types or modifying existing ones: the Info Type Definition Form, the Digital Element Type Form, the Analog Element Type Form, the Accumulator Element Type Form, the Element Name Definition Form, and the Info Text Definition Form."
+    }
+  ],
+  "annotated_by": "Carlos Villarreal"
+}

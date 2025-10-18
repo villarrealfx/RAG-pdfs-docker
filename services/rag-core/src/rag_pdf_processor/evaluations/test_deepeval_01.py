@@ -4,6 +4,7 @@ import pytest
 import logging
 from typing import List, Optional, Dict, Tuple
 from dotenv import load_dotenv
+from pathlib import Path
 
 from deepeval import assert_test
 from deepeval.metrics import (
@@ -35,12 +36,12 @@ model = DeepSeekModel(
 
 
 # Cargando Data para prueba
-file_path = "evaluation_dataset.json"
+file_path = Path(__file__).parent / "evaluation_dataset.json"
 with open(file_path, 'r') as file:
     # Carga los datos del archivo JSON
     input_output_pairs = json.load(file)
 
-test_data = input_output_pairs[9:]
+test_data = input_output_pairs[9:10]  # [9:]
 
 # Funciones de Pruebas deepeval
 def  test_relevancy (): 

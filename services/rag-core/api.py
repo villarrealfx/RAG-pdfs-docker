@@ -2,15 +2,18 @@ import logging
 import os
 import hashlib
 import time
+from datetime import datetime
 import random
 from dotenv import load_dotenv
 from pathlib import Path
 from typing import List, Tuple, Dict, Any, Optional
 from pydantic import BaseModel, Field, conint
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Query
 from starlette.responses import JSONResponse
 
 # --- 1. Importaciones de Lógica de Negocio ---
+from rag_pdf_processor.evaluations.run_tests import run_deepeval_tests
+from rag_pdf_processor.evaluations.run_test_scores import run_deepeval_test_scores
 try:
     from rag_pdf_processor.utils.process_pdfs import (
         scan_folders, 
@@ -47,7 +50,7 @@ logging.basicConfig(level=logging.INFO)
 
 logger.info("🔄 Inicializando componentes RAG...")
 try:
-    vector_store = VectorRetriever(collection_name="retrieval_context-hybrid")
+    vector_store = VectorRetriever(collection_name="chunks-hybrid")
     logger.info("✅ Vector Store (Qdrant) inicializado.")
 except Exception as e:
     logger.error(f"Error inicializando Vector Store: {e}")
@@ -137,6 +140,56 @@ class FeedbackResult(BaseModel):
     status: str = "Success"
     feedback_id: str = Field(...)
 
+### ------------------------------------------------------------------- ###
+class FeedbackItem(BaseModel):
+    feedback_id: str
+    query: str
+    actual_output: str
+    chunk_ids: str  # Cadena separada por comas
+    rating: int
+    timestamp: str # o datetime si lo manejas así
+
+class GetFeedbackResponse(BaseModel):
+    feedback_data: List[FeedbackItem]
+
+class GetAnnotationsRequest(BaseModel):
+    feedback_ids: List[str]
+
+class GetAnnotationsResponse(BaseModel):
+    annotations: Dict[str, str] # { feedback_id: expected_output, ... }
+
+class RunEvaluationRequest(BaseModel):
+    feedback_list: List[FeedbackItem]
+    annotations_map: Dict[str, str] # { feedback_id: expected_output, ... }
+
+class RunEvaluationResponse(BaseModel):
+    status: str
+    message: str
+
+class AnnotationItem(BaseModel):
+    feedback_id: str
+    expected_output: str
+
+class LoadAnnotationsRequest(BaseModel):
+    annotations: List[AnnotationItem]
+    annotated_by: str = "Experto"
+
+# Modelo de respuesta del endpoint
+class EvaluationMetric(BaseModel):
+    run_id: str
+    run_timestamp: datetime
+    query_text: str
+    metric_name: str
+    metric_value: float
+    evaluation_suite: str
+    model_name: str
+    feedback_id: Optional[str] = None
+
+class GetEvaluationResultsResponse(BaseModel):
+    results: List[EvaluationMetric]
+
+### ------------------------------------------------------------------- ###
+
 # --- 5. FUNCIONES AUXILIARES ---
 def get_db_config():
     """Obtiene la configuración de la base de datos para el usuario de aplicación."""
@@ -155,7 +208,7 @@ def save_feedback_to_db(query, actual_output, chunk_ids, rating, comment):
     feedback_id = hashlib.sha256(f"{query}{time.time()}".encode()).hexdigest()[:12]
 
     query_insert = """
-        INSERT INTO user_feedback (feedback_id, query, actual_output, chunk_ids, rating, comment)
+        INSERT INTO user_feedback (feedback_id, query, llm_response, chunk_ids, rating, comment)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
 
@@ -285,6 +338,190 @@ def execute_rag_pipeline(user_query: str) -> RAGOutput:
         llm_model="deepseek-chat"
     )
 
+### ------------------------------------------------------------------- ###
+def get_feedback_last_week_from_db() -> List[Dict]:
+    """
+    Obtiene feedback de la semana pasada con rating 1, 2 o 3.
+    """
+    # Consulta SQL para obtener feedback de la semana pasada
+    # Ajusta la lógica de fechas si es necesario
+    from datetime import datetime, timedelta, UTC
+    # Suponiendo que la zona horaria es UTC o que timestamp es naive en UTC
+    now = datetime.now(UTC)
+    start_of_last_week = (now - timedelta(days=now.weekday() + 7)).date() # Lunes de la semana anterior
+    end_of_last_week = start_of_last_week + timedelta(days=6) # Domingo de la semana anterior
+
+    query_sql = """
+        SELECT feedback_id, query, llm_response, chunk_ids, rating, timestamp
+        FROM user_feedback
+        WHERE rating IN (1, 2, 3)
+        AND timestamp >= %s AND timestamp <= %s
+        ORDER BY timestamp DESC;
+    """
+    params = (start_of_last_week.isoformat(), end_of_last_week.isoformat())
+    rows = execute_query(user='appuser', query=query_sql, fetch=True, params=params)
+
+    feedback_list = []
+    try:
+        for row in rows:
+            feedback_list.append({
+                "feedback_id": row['feedback_id'],
+                "query": row['query'],
+                "actual_output": row['llm_response'],
+                "chunk_ids": row['chunk_ids'], # Es una cadena separada por comas
+                "rating": row['rating'],
+                "timestamp": row['timestamp'].isoformat() if row['timestamp'] else None # Convertir datetime a string
+            })
+        return feedback_list
+    except Exception as e:
+        logger.error(f"Error inesperado: {e}")
+
+def get_expert_annotations_from_db(feedback_ids: List[str]) -> Dict[str, str]:
+    """
+    Obtiene las anotaciones de experto para los feedback_ids dados.
+    """
+    if not feedback_ids:
+        return {}
+    # Usar placeholders para evitar inyección SQL
+    placeholders = ','.join(['%s'] * len(feedback_ids))
+    query_sql = f"""
+        SELECT feedback_id, expected_output
+        FROM expert_annotations
+        WHERE feedback_id IN ({placeholders});
+    """
+    rows = execute_query(user='appuser', query=query_sql, fetch=True, params=feedback_ids)
+
+    annotations_map = {row['feedback_id']: row['expected_output'] for row in rows}
+    return annotations_map
+
+def get_chunks_content_from_ids(chunk_ids_str: str, retriever: VectorRetriever) -> List[str]:
+    """
+    Recibe una cadena de chunk_ids separados por comas,
+    y devuelve una lista con el contenido de cada chunk obtenido desde Qdrant.
+    """
+    chunk_ids = [cid.strip() for cid in chunk_ids_str.split(",") if cid.strip()]
+    contents = []
+
+    for cid in chunk_ids:
+        chunk = retriever.get_chunk_by_id(cid)
+        if chunk:
+            contents.append(chunk["content"])  # Solo el campo "content" como solicitaste
+        else:
+            logger.warning(f"⚠️ Chunk con ID {cid} no encontrado en Qdrant.")
+            # Puedes decidir agregar un string vacío o None, o simplemente omitirlo
+            # contents.append(None)
+    return contents
+
+def run_evaluation_suite_logic(feedback_list: List[Dict], annotations_map: Dict[str, str], vector_store: VectorRetriever):
+    """
+    Lógica principal para ejecutar la suite de evaluación.
+    Obtiene chunks, corre métricas, y guarda resultados en la BBDD.
+    """
+    from rag_pdf_processor.evaluations.test_deepeval_scores import model as model_1
+    from rag_pdf_processor.evaluations.test_geval_scores import model as model_2
+    from deepeval.metrics import (
+        AnswerRelevancyMetric, FaithfulnessMetric, HallucinationMetric,
+        ContextualRelevancyMetric, ContextualPrecisionMetric, ContextualRecallMetric
+    )
+    from deepeval.metrics import GEval # Si decides usarlo
+    from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+    import uuid
+
+    # Generar un run_id único para esta ejecución
+    run_id = str(uuid.uuid4())
+
+    results_to_save = []
+    for item in feedback_list:
+        query = item['query']
+        actual_output = item['actual_output']
+        feedback_id = item['feedback_id']
+        retrieval_context_raw = get_chunks_content_from_ids(item['chunk_ids'], vector_store)
+        expected_output = annotations_map.get(feedback_id)
+
+        # --- Ejecutar Métricas ---
+        # Inicializar métricas (usa el modelo que tengas configurado, model_1 o model_2)
+        metrics_no_exp = [
+            AnswerRelevancyMetric(threshold=0, model=model_1, strict_mode=False),
+            FaithfulnessMetric(threshold=0, model=model_1, strict_mode=False),
+            HallucinationMetric(threshold=0, model=model_1, strict_mode=False),
+            ContextualRelevancyMetric(threshold=0, model=model_1, strict_mode=False)
+        ]
+
+        metrics_with_exp = []
+        if expected_output:
+            metrics_with_exp = [
+                ContextualPrecisionMetric(threshold=0, model=model_1, strict_mode=False),
+                ContextualRecallMetric(threshold=0, model=model_1, strict_mode=False),
+                # Ejemplo de GEval definir las evaluaciones 
+                # GEval( ... )
+            ]
+
+        # Crear test case
+        tc = LLMTestCase(
+            input=query,
+            actual_output=actual_output,
+            expected_output=expected_output if expected_output else None, # Puede ser None
+            retrieval_context=retrieval_context_raw if retrieval_context_raw else None # Puede ser None
+        )
+
+        # Medir métricas sin expected_output
+        scores_no_exp = {}
+        for metric in metrics_no_exp:
+            try:
+                score = metric.measure(tc)
+                scores_no_exp[metric.__class__.__name__] = score
+            except Exception as e:
+                logger.error(f"Error al medir métrica {metric.__class__.__name__} para feedback {feedback_id}: {e}")
+                scores_no_exp[metric.__class__.__name__] = None # O manejar el error como prefieras
+
+        # Medir métricas con expected_output
+        scores_with_exp = {}
+        for metric in metrics_with_exp:
+            try:
+                score = metric.measure(tc)
+                scores_with_exp[metric.__class__.__name__] = score
+            except Exception as e:
+                logger.error(f"Error al medir métrica {metric.__class__.__name__} para feedback {feedback_id}: {e}")
+                scores_with_exp[metric.__class__.__name__] = None # O manejar el error como prefieras
+
+        # Combinar resultados
+        all_scores = {**scores_no_exp, **scores_with_exp}
+
+        # Crear entradas para la tabla evaluation_results
+        for metric_name, metric_value in all_scores.items():
+            if metric_value is not None: # Solo guardar si se pudo calcular
+                results_to_save.append({
+                    "run_id": run_id,
+                    "query_text": query,
+                    "metric_name": metric_name,
+                    "metric_value": metric_value,
+                    "evaluation_suite": "rag_evaluation_weekly",
+                    "model_name": os.getenv("EVAL_MODEL_NAME", "unknown"),
+                    "feedback_id": feedback_id
+                })
+
+    # --- Guardar Resultados ---
+    if results_to_save:
+        insert_query = """
+            INSERT INTO evaluation_results (run_id, run_timestamp, query_text, metric_name, metric_value, evaluation_suite, model_name, feedback_id)
+            VALUES (%(run_id)s, DEFAULT, %(query_text)s, %(metric_name)s, %(metric_value)s, %(evaluation_suite)s, %(model_name)s, %(feedback_id)s);
+        """
+        # execute_query no es ideal para grandes inserciones, considera usar psycopg2 extras.execute_batch o similar si es necesario
+        for result in results_to_save:
+            execute_query(user='appuser', query=insert_query, fetch=False, params=result)
+        logger.info(f"Guardados {len(results_to_save)} resultados de evaluación para run_id {run_id}.")
+    else:
+        logger.warning(f"No se generaron resultados válidos para el run_id {run_id}.")
+
+
+    return {
+        "status": "success",
+        "message": f"Evaluación completada. {len(results_to_save)} resultados guardados.",
+        "run_id": run_id
+    }
+
+### ------------------------------------------------------------------- ###
+
 # --- ENDPOINT 1: CONSULTA RAG (Llamado por frontend) ---
 
 @app.post("/query_rag", response_model=RAGOutput)
@@ -385,7 +622,181 @@ async def process_document_endpoint(input_data: ProcessDocumentInput):
     else:
         raise HTTPException(status_code=500, detail="Fallo en el procesamiento del documento.")
 
-# --- ENDPOINT 5: Endpoint de prueba de conexión ---
+# --- ENDPOINT 5: Endpoint de prueba LLMs y RAG ---
+@app.get("/run_deepeval_tests")
+def run_deepeval_tests_endpoint():
+    """
+    **Endpoint: Ejecutar pruebas DeepEval y devolver resultados**
+    """
+    try:
+        results = run_deepeval_tests()
+        return JSONResponse(content=results)
+    except Exception as e:
+        logger.error(f"Error ejecutando tests DeepEval: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al ejecutar los tests: {str(e)}")
+
+# --- ENDPOINT 6: Endpoint de pruebas scores ---
+@app.get("/run_deepeval_test_scores")
+def run_deepeval_test_scores_endpoint():
+    """
+    **Endpoint: Ejecutar pruebas DeepEval y devolver scores numéricos**
+    """
+    try:
+        results = run_deepeval_test_scores()
+        return JSONResponse(content=results)
+    except Exception as e:
+        logger.error(f"Error ejecutando tests DeepEval (scores): {e}")
+        raise HTTPException(status_code=500, detail=f"Error al ejecutar los tests: {str(e)}")
+
+
+### -------------------------------------------------------------------- ###
+@app.get("/get_feedback_last_week", response_model=GetFeedbackResponse)
+async def get_feedback_last_week_endpoint():
+    """
+    **Endpoint: Obtener feedback con rating bajo de la semana pasada.**
+    """
+    try:
+        feedback_data = get_feedback_last_week_from_db()
+        return GetFeedbackResponse(feedback_data=feedback_data)
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al obtener feedback de la semana pasada: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar obtener el feedback."
+        )
+    
+@app.post("/get_expert_annotations", response_model=GetAnnotationsResponse)
+async def get_expert_annotations_endpoint(request: GetAnnotationsRequest):
+    """
+    **Endpoint: Obtener anotaciones de experto para una lista de feedback_ids.**
+    """
+    try:
+        feedback_ids = request.feedback_ids
+        annotations = get_expert_annotations_from_db(feedback_ids)
+        return GetAnnotationsResponse(annotations=annotations)
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al obtener anotaciones de experto: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar obtener las anotaciones."
+        )
+    
+@app.post("/run_evaluation_suite", response_model=RunEvaluationResponse)
+async def run_evaluation_suite_endpoint(request: RunEvaluationRequest):
+    """
+    **Endpoint: Ejecutar la suite de evaluación de DeepEval con los datos proporcionados.**
+    """
+    try:
+        feedback_list = [item.dict() for item in request.feedback_list] # Convertir Pydantic a dict
+        annotations_map = request.annotations_map
+        # Usar el vector_store ya inicializado globalmente
+        result = run_evaluation_suite_logic(feedback_list, annotations_map, vector_store)
+        return RunEvaluationResponse(status=result["status"], message=result["message"])
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al ejecutar la suite de evaluación: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar ejecutar la evaluación."
+        )
+    
+@app.post("/load_expert_annotations")
+async def load_expert_annotations_endpoint(request: LoadAnnotationsRequest, current_user: str ): # <-- Agregar autenticación real
+    """
+    **Endpoint (requiere autenticación): Cargar anotaciones de experto.**
+    """
+    # Verificar si el usuario es un experto autorizado
+    # if not current_user.is_expert: # <-- Lógica de autorización
+    #     raise HTTPException(status_code=403, detail="No autorizado para cargar anotaciones.")
+    try:
+        inserted_count = 0
+        for item in request.annotations:
+            # Usar execute_query para insertar
+            insert_query = """
+                INSERT INTO expert_annotations (feedback_id, query, actual_output, expected_output, annotated_by)
+                SELECT uf.feedback_id, uf.query, uf.llm_response, %s, %s
+                FROM user_feedback uf
+                WHERE uf.feedback_id = %s
+                AND NOT EXISTS (SELECT 1 FROM expert_annotations ea WHERE ea.feedback_id = %s);
+            """
+            params = (item.expected_output, request.annotated_by, item.feedback_id, item.feedback_id)
+            result = execute_query(user='appuser', query=insert_query, fetch=False, params=params)
+            # execute_query puede devolver el número de filas afectadas o un booleano
+            # Ajusta según tu implementación de execute_query
+            if result: # o si devuelve filas afectadas > 0
+                inserted_count += 1
+
+        return {"status": "success", "message": f"{inserted_count} anotaciones insertadas."}
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al cargar anotaciones: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar cargar las anotaciones."
+        )
+    
+# Endpoint para obtener resultados de evaluación
+@app.get("/get_evaluation_results", response_model=GetEvaluationResultsResponse)
+async def get_evaluation_results(
+    run_id: Optional[str] = Query(None), # Usar Query para parámetros de filtro
+    start_date: Optional[datetime] = Query(None),
+    end_date: Optional[datetime] = Query(None),
+    evaluation_suite: Optional[str] = Query(None),
+    # ... otros filtros ...
+):
+    """
+    **Endpoint: Obtener resultados de evaluación de DeepEval desde la base de datos.**
+    """
+    try:
+        # Construir la consulta SQL con los filtros recibidos
+        query_sql = """
+            SELECT run_id, run_timestamp, query_text, metric_name, metric_value, evaluation_suite, model_name, feedback_id
+            FROM evaluation_results
+            WHERE 1=1
+        """
+        params = []
+        if run_id:
+            query_sql += " AND run_id = %s"
+            params.append(run_id)
+        if start_date:
+            query_sql += " AND run_timestamp >= %s"
+            params.append(start_date)
+        if end_date:
+            query_sql += " AND run_timestamp <= %s"
+            params.append(end_date)
+        if evaluation_suite:
+            query_sql += " AND evaluation_suite = %s"
+            params.append(evaluation_suite)
+
+        query_sql += " ORDER BY run_timestamp DESC, metric_name;"
+
+        # Ejecutar la consulta
+        rows = execute_query(user='appuser', query=query_sql, fetch=True, params=params)
+
+        # Convertir resultados a la estructura esperada por el modelo Pydantic
+        results = [
+            EvaluationMetric(
+                run_id=row['run_id'],
+                run_timestamp=row['run_timestamp'],
+                query_text=row['query_text'],
+                metric_name=row['metric_name'],
+                metric_value=row['metric_value'],
+                evaluation_suite=row['evaluation_suite'],
+                model_name=row['model_name'],
+                feedback_id=row['feedback_id']
+            )
+            for row in rows
+        ]
+
+        return GetEvaluationResultsResponse(results=results)
+    except Exception as e:
+        logger.error(f"ERROR: Fallo al obtener resultados de evaluación: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Fallo interno del servidor al intentar obtener los resultados."
+        )
+    
+### ---------------------------------------------------------------------- ###
+
+# --- ENDPOINT 7: Endpoint de prueba de conexión ---
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "RAG Core API"}

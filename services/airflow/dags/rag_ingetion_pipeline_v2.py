@@ -1,8 +1,3 @@
-"""
-DAG ADAPTADO A MICROSERVICIOS. Ahora funciona como ORQUESTADOR,
-llamando a endpoints de FastAPI para toda la lógica de negocio (scan, hash, check, process).
-"""
-
 from datetime import datetime, timedelta
 import logging
 import os
