@@ -53,3 +53,7 @@ def run_deepeval_tests() -> Dict[str, Any]:
                 all_results[test_file.name] = {"error": "Archivo de resultados no generado."}
 
     return all_results
+
+if __name__ == "__main__":
+    print("Corriendo pruevas de DeepEval.")
+    run_deepeval_tests()

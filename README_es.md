@@ -105,10 +105,10 @@ Asegúrate de tener instalado:
 
 1.  **Clonar el Repositorio:**
 
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd RAG-SCADA-Chat
-    ```
+   ```bash
+   git clone https://github.com/villarrealfx/RAG-pdfs-docker.git
+   cd RAG-pdfs-docker
+   ```
 
 2.  **Configurar Variables de Entorno:**
 
@@ -144,7 +144,7 @@ Para que la aplicación funcione, es necesario cargar los manuales PDF en la car
 
       * Una vez que los archivos están en la carpeta, dirígete a la interfaz web de Airflow: `http://localhost:8080`.
       * Inicia sesión con las credenciales configuradas en el `.env`.
-      * Busca el DAG llamado **`rag_ingetion_pipeline_v2.py`** y lánzalo manualmente (*trigger*).
+      * Busca el DAG llamado **`rag_ingestion_api_orchestrator`** y lánzalo manualmente (*trigger*).
       * Este proceso se conectará con `rag-core` para iniciar la limpieza, *chunking* y almacenamiento vectorial en **Qdrant**.
 
 ### 4\. Consultas y Evaluación
@@ -154,6 +154,18 @@ Para que la aplicación funcione, es necesario cargar los manuales PDF en la car
 3.  **Preguntas de Referencia:** El archivo **`questions.json`** contiene un set de preguntas formuladas por un experto en SCADA SDM. Utiliza estas preguntas como referencia para:
       * Verificar las respuestas esperadas.
       * Ejecutar los *scripts* de **Deepeval** para la evaluación de la calidad RAG y LLM.
+        * En una terminal ingresa al contenedor de rag-core
+        ```bash
+        docker exec -it rag-core bash
+        ```
+        * Una vez en el bash del contenedor corre los test de deepeval como sigue
+        ```bash
+        deepeval test run src/rag_pdf_processor/evaluations/test_deepeval_01.py
+        ```
+        y/o
+        ```bash
+        deepeval test run src/rag_pdf_processor/evaluations/test_geval.py
+        ```
 
 -----
 

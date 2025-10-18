@@ -123,8 +123,3 @@ def test_hallucination():
         ) 
         
         assert_test(test_case, [hallucination])
-
-
-# deepeval test run test_deepeval.py::nombre_de_la_funcion_test
-# pytest test_deepeval.py::nombre_de_la_funcion_test -v
-# 

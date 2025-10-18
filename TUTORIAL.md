@@ -90,3 +90,11 @@ Has completado el flujo básico del proyecto. Puedes repetir los pasos 3 a 5 par
 ---
 
 **¿Tienes dudas?** Revisa el `README.md` o abre un *issue* en el repositorio.
+
+## 📞 Contact
+
+If you have questions, suggestions, or want to collaborate on the project, you can contact the main developer through:
+
+* **Name:** Carlos Villarreal P.
+* **Email:** `villarreal.fx@gmail.com`
+* **LinkedIn:** [`linkedin.com/in/carlos-villarreal-paredes/`](https://www.linkedin.com/in/carlos-villarreal-paredes/)

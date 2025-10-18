@@ -108,8 +108,8 @@ Ensure you have installed:
 1. **Clone the Repository:**
 
    ```bash
-   git clone <REPOSITORY_URL>
-   cd RAG-SCADA-Chat
+   git clone https://github.com/villarrealfx/RAG-pdfs-docker.git
+   cd RAG-pdfs-docker
    ```
 
 2. **Configure Environment Variables:**
@@ -156,6 +156,17 @@ For the application to function, it's necessary to load the PDF manuals into the
 3. **Reference Questions:** The **`questions.json`** file contains a set of questions formulated by an SCADA SDM expert. Use these questions as a reference to:
    * Verify expected answers
    * Execute **Deepeval** scripts for RAG and LLM quality evaluation
+      * At a terminal, enter the rag-core container.
+        ```bash
+        docker exec -it rag-core bash
+        ```
+      * Once in the container's bash, run the deepeval tests as follows
+        ```bash
+        deepeval test run src/rag_pdf_processor/evaluations/test_deepeval_01.py
+        ```
+        and / or
+        ```bash
+        deepeval test run src/rag_pdf_processor/evaluations/test_geval.py
 
 -----
 

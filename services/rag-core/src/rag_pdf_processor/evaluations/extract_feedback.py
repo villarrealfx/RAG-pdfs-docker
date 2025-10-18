@@ -31,7 +31,7 @@ def main():
     query_sql = """
         SELECT query, actual_output, chunk_ids
         FROM user_feedback
-        WHERE rating = 5
+        WHERE rating = 3
     """
     user = os.getenv("APP_DB_USER")
     rows = execute_query(user, query_sql)
