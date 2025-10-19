@@ -1,3 +1,4 @@
+##   🇺🇸 [English Version](README.md)
 # 🤖 RAG-SCADA-Chat 💬
 
 Este proyecto implementa un sistema de **Generación Aumentada por Recuperación (RAG)** utilizando **Modelos de Lenguaje Grande (LLMs)** para transformar manuales técnicos en PDF (operación y mantenimiento de sistemas SCADA eléctricos) en una base de conocimiento conversacional y accesible. Su objetivo es proporcionar **respuestas instantáneas, coherentes y exactas** a las consultas de los usuarios, reduciendo significativamente el tiempo de acceso y rastreo de información en la documentación tradicional.
@@ -26,6 +27,24 @@ El proyecto está diseñado como una aplicación de microservicios contenerizada
 | **`postgres_app`** | `PostgreSQL` | **Base de Datos de Aplicación.** Almacena metadatos de documentos (hash) y el feedback/evaluación del usuario. |
 | **`postgres`** | `PostgreSQL` | **Base de Datos de Airflow.** Almacena la metadata de la orquestación de Airflow. |
 | **`qdrant`** | `Qdrant` | **Base de Datos Vectorial.** Almacena los *retrieval_context* semánticos y sus vectores para la recuperación RAG. |
+
+-----
+
+## ⚛️ rag-core el nucleo del sistema
+Todo procesamiento, interacción con base de datos, comunicación con LLMs, pasa por la API rag-core construida con fastAPI presenta los siguientes endpoints
+* **`POST /query_rag`**: Consulta RAG en Tiempo Real Ejecuta el pipeline completo: expansión, búsqueda, re-ranking, y generación LLM.
+* **`POST /submit_feedback`**:  Almacenamiento de Feedback Guarda la evaluación del usuario en PostgreSQL.
+* **`POST /process_document`**: Procesamiento pesado de documentos pdfs (Manuales)
+* **`POST /get_expert_annotations`**: Obtener anotaciones de experto para una lista de feedback_ids
+* **`POST /run_evaluation_suite`**: Ejecutar la suite de evaluación de DeepEval con los datos proporcionados.
+* **`POST /load_expert_annotations`**: Cargar anotaciones de experto.
+* **`GET /ìngest_metadat_only`**: Combina scan_folders, calculate_hash_md5 y document_already_processed. Devuelve la lista de documentos que Airflow necesita enviar para su procesamiento.
+* **`GET /run_deepeval_test`**: Ejecutar pruebas DeepEval y devolver resultados
+* **`GET /run_deepeval_test_scores`**: Ejecutar pruebas DeepEval y devolver scores numéricos
+* **`GET /get_feedback_lastweek`**: Obtener feedback con rating bajo de la semana pasada.
+* **`GET /get_evaluation_results`**: Obtener resultados de evaluación de DeepEval desde la base de datos.
+* **`GET /get_feedback_ratings`**:  Obtener conteo de ratings del feedback de usuarios.
+* **`GET /health`**: Obtiene el estado de salud de la API
 
 -----
 
@@ -134,7 +153,7 @@ Para que la aplicación funcione, es necesario cargar los manuales PDF en la car
 
       * Copia los archivos PDF de la carpeta `Manuales pdfs` a la ruta interna de `rag-core`:
         ```bash
-        cp manuales_pdfs/* service/rag-core/data/raw/
+        cp manuals_sdm/* services/rag-core/data/raw/
         ```
       * **Nota de Procesamiento:** 
       Mover **todos** los manuales puede requerir hasta **90 minutos (1 hora y 30 minutos)** en equipos con recursos limitados. Para una prueba inicial rápida, se recomienda mover solo **1 o 2 manuales**.
@@ -168,6 +187,15 @@ Para que la aplicación funcione, es necesario cargar los manuales PDF en la car
         ```
 
 -----
+
+## Limitaciones del Proyecto
+
+Este proyecto presenta las siguientes limitaciones:
+
+*   **Compatibilidad con Proveedores de LLM:** El código está configurado y probado principalmente para funcionar con las APIs de **DeepSeek y Gemini**. Si se desea utilizar otro proveedor de modelos de lenguaje (por ejemplo, OpenAI, Cohere, etc.), será necesario realizar ajustes configuración del Modelo respectivo.
+*   **Procesamiento de Documentos PDF:** Los procesos de extracción y limpieza de texto de los archivos PDF están **diseñados específicamente para documentos del tipo "Manuales de SDM Spectrum de Seamens"**. Para procesar otro tipo de bibliografía o documentos con estructuras diferentes, será necesario adaptar los scripts de limpieza y estructuración de texto.
+
+----
 
 ## 📞 Contacto
 

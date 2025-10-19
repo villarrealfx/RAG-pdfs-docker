@@ -1,3 +1,6 @@
+##  🇻🇪 [versión en español](README_es.md)
+
+
 # 🤖 RAG-SCADA-Chat 💬
 
 This project implements a **Retrieval-Augmented Generation (RAG)** system using **Large Language Models (LLMs)** to transform technical PDF manuals (operation and maintenance of electrical SCADA systems) into a conversational and accessible knowledge base. Its objective is to provide **instant, coherent, and accurate responses** to user queries, significantly reducing the time required to access and search for information in traditional documentation.
@@ -28,6 +31,30 @@ The project is designed as a containerized microservices application using **Doc
 | **`qdrant`** | `Qdrant` | **Vector Database.** Stores semantic contexts and their vectors for RAG retrieval. |
 
 -----
+
+Okay, here is the translation into English:
+
+---
+
+## ⚛️ rag-core, the system's core
+
+All processing, database interaction, and LLM communication goes through the `rag-core` API, built with FastAPI. It exposes the following endpoints:
+
+*   **`POST /query_rag`**: Real-time RAG Query. Executes the complete pipeline: expansion, search, re-ranking, and LLM generation.
+*   **`POST /submit_feedback`**: Feedback Storage. Saves user evaluations into PostgreSQL.
+*   **`POST /process_document`**: Heavy document processing (PDFs - Manuals).
+*   **`POST /get_expert_annotations`**: Get expert annotations for a list of feedback IDs.
+*   **`POST /run_evaluation_suite`**: Run the DeepEval evaluation suite with the provided data.
+*   **`POST /load_expert_annotations`**: Load expert annotations.
+*   **`GET /ingest_metadata_only`**: Combines `scan_folders`, `calculate_hash_md5`, and `document_already_processed`. Returns the list of documents Airflow needs to send for processing.
+*   **`GET /run_deepeval_test`**: Run DeepEval tests and return results.
+*   **`GET /run_deepeval_test_scores`**: Run DeepEval tests and return numerical scores.
+*   **`GET /get_feedback_lastweek`**: Get low-rated feedback from the last week.
+*   **`GET /get_evaluation_results`**: Get DeepEval evaluation results from the database.
+*   **`GET /get_feedback_ratings`**: Get the count of user feedback ratings.
+*   **`GET /health`**: Get the health status of the API.
+
+----
 
 ## 💻 Workflow and Functionality (RAG & Ingestion)
 
@@ -136,7 +163,7 @@ For the application to function, it's necessary to load the PDF manuals into the
 
    * Copy the PDF files from the `Manuales pdfs` folder to the internal path of `rag-core`:
      ```bash
-     cp manuales_pdfs/* service/rag-core/data/raw/
+     cp manuals_sdm/* services/rag-core/data/raw/
      ```
    * **Processing Note:**
      Moving **all** manuals may require up to **90 minutes (1 hour and 30 minutes)** on resource-limited machines. For an initial quick test, it's recommended to move only **1 or 2 manuals**.
@@ -169,6 +196,15 @@ For the application to function, it's necessary to load the PDF manuals into the
         deepeval test run src/rag_pdf_processor/evaluations/test_geval.py
 
 -----
+
+## Project Limitations
+
+This project has the following limitations:
+
+* **Compatibility with LLM Providers:** The code is primarily configured and tested to work with the **DeepSeek and Gemini** APIs. If you wish to use another language model provider (e.g., OpenAI, Cohere, etc.), you will need to adjust the configuration of the respective model.
+* **PDF Document Processing:** The text extraction and cleaning processes for PDF files are **specifically designed for documents such as "Seamens SDM Spectrum Manuals."** To process other types of bibliographies or documents with different structures, the text cleaning and structuring scripts will need to be adapted.
+
+----
 
 ## 📞 Contact
 
