@@ -56,9 +56,7 @@ def insert_data_to_db(conn, data):
         INSERT INTO {TABLE_NAME} 
         (run_id, run_timestamp, query_text, metric_name, metric_value, evaluation_suite, model_name, feedback_id)
         VALUES %s
-        ON CONFLICT (run_id, query_text, metric_name) DO NOTHING; -- Opcional: Evita duplicados si la combinación es clave
-        -- Puedes ajustar la cláusula ON CONFLICT según tu clave primaria o únicas
-    """
+        """
 
     # Preparar los datos para execute_values
     # Cada tupla debe seguir el mismo orden que las columnas en el INSERT
