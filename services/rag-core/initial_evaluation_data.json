@@ -1,0 +1,594 @@
+{
+  "results": [
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.124549",
+      "query_text": "What typification forms are provided to define new types or modify existing ones?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 0.3,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "08bd34c0c0e7"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.102807",
+      "query_text": "What typification forms are provided to define new types or modify existing ones?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 0.45,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "08bd34c0c0e7"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.090915",
+      "query_text": "What typification forms are provided to define new types or modify existing ones?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "08bd34c0c0e7"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.082969",
+      "query_text": "What typification forms are provided to define new types or modify existing ones?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "08bd34c0c0e7"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.067316",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 0.45,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.058619",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 0.3333333333333333,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.046123",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.18,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.034210",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.023641",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.42857142857142855,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.013965",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:38.003402",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.990418",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.125,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.982019",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 0.8571428571428571,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.969913",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.952053",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.934739",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 0.8333333333333333,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.923816",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.08333333333333333,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.902458",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.879036",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.870155",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.859472",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 0.5,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.845727",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.47368421052631576,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.834874",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 0.8235294117647058,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.825713",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.9444444444444444,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.812503",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 0.22222458,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.801243",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 0.3333333333333333,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.792186",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.14,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.779196",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 0.7142857142857143,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.734825",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.5714285714285714,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.713055",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.690630",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.681664",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.671181",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 0.8333333333333334,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.659200",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.646097",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.623935",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.612409",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.14634146341463414,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.603794",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 0.8571428571428571,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.590998",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.579312",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.567874",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.557390",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.34285714285714286,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.546143",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.535328",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.524362",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "ContextualRecallMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "22c19f550e83"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.479565",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "ContextualPrecisionMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "22c19f550e83"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.468271",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "ContextualRelevancyMetric",
+      "metric_value": 0.15,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "22c19f550e83"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.458417",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "FaithfulnessMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "22c19f550e83"
+    },
+    {
+      "run_id": "70e350e0-8e4c-473f-ad12-05bfbcaea977",
+      "run_timestamp": "2025-10-18T06:48:37.440432",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "unknown",
+      "feedback_id": "22c19f550e83"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.334989",
+      "query_text": "What typification forms are provided to define new types or modify existing ones?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.4,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "08bd34c0c0e7"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.324049",
+      "query_text": "What is the function of the 'Model' button in the Info Type Definition Form toolbar?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.5714285714285714,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "4ffc0dc3ea02"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.313096",
+      "query_text": "What functions are available in the Command Block of the Task Log Form?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.7692307692307693,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "4b7828b93065"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.268558",
+      "query_text": "What is a voltage level defined as in the context of a station?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "049d6e1d00b6"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.090592",
+      "query_text": "What is the hierarchical structure of records in the DMS system as described?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.9444444444444444,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "1f3a34bcff01"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.079626",
+      "query_text": "What is the purpose of the Model Form and what are the key attributes in its Detail Block?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 0.5714285714285714,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "1db64c484e05"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.068498",
+      "query_text": "What information is displayed in the Master Block of the Circuit Specific Combinations Form?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "82a4dcded4c8"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.057351",
+      "query_text": "What is the purpose of the Circuit Specific Combinations Form and what type of logical operations does it handle?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "d6fef162cf35"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:22.046794",
+      "query_text": "How is the inheritance of multisite descriptions handled for B2 and B3 blocks, and how can this inheritance be overridden?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "ba7876251668"
+    },
+    {
+      "run_id": "2f222aef-3fd6-4874-988a-fa87e9fb091e",
+      "run_timestamp": "2025-10-18T05:39:21.919140",
+      "query_text": "What happens to the button functionality in the Multisite Form when you press the 'Disinherit' button?",
+      "metric_name": "AnswerRelevancyMetric",
+      "metric_value": 1,
+      "evaluation_suite": "rag_evaluation_weekly",
+      "model_name": "deepseek-chat",
+      "feedback_id": "22c19f550e83"
+    }
+  ]
+}
