@@ -135,8 +135,10 @@ services:
       sh -c "python /app/src/rag_pdf_processor/utils/initialize_database.py &&
             python /app/populate_evaluations.py && uvicorn api:app --host 0.0.0.0 --port 8000"
     depends_on:
-      - postgres_app
-      - qdrant
+      postgres_app:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
     volumes:
       - ./services/rag-core/data:/app/data
       - ./services/rag-core/retrieval_context:/app/retrieval_context
