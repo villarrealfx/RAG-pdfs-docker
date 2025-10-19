@@ -15,7 +15,7 @@ class VectorRetriever:
     def __init__(self, 
                  host: str = "qdrant", 
                  port: int = 6333, 
-                 collection_name: str = "retrieval_context-hybrid",
+                 collection_name: str = "chunks-hybrid",
                  embedding_model: str = "BAAI/bge-small-en-v1.5"):
         """
         Inicializar sistema de búsqueda híbrida
