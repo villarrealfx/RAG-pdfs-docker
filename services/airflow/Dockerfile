@@ -22,11 +22,16 @@ USER airflow
 # Copia el requirements.txt específico de Airflow y lo instala
 WORKDIR /opt/airflow
 COPY services/airflow/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Configuración de pip
+ENV PIP_DEFAULT_TIMEOUT=100
+ENV PIP_RETRIES=5
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --retries 5 --timeout 120 -r requirements.txt
 
 # --- Copia DAGs, plugins, etc. ---
 COPY services/airflow/dags/ /opt/airflow/dags/
-COPY services/airflow/plugins/ /opt/airflow/plugins/
 
 # Configura los permisos para asegurar que airflow puede leer los archivos
 USER root

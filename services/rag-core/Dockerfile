@@ -12,7 +12,13 @@ RUN apt-get update && apt-get install -y \
 
 # Copiar requirements
 COPY services/rag-core/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Configuración de pip
+ENV PIP_DEFAULT_TIMEOUT=100
+ENV PIP_RETRIES=5
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --retries 5 --timeout 120 -r requirements.txt
 
 # Copiar solo los directorios necesarios
 COPY services/rag-core/ /app
