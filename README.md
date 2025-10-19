@@ -173,7 +173,7 @@ For the application to function, it's necessary to load the PDF manuals into the
 
    * Once the files are in the folder, navigate to the Airflow web interface: `http://localhost:8080`
    * Log in with the credentials configured in the `.env` file
-   * Find the DAG named **`rag_ingetion_pipeline_v2.py`** and trigger it manually
+   * Find the DAG named **`rag_ingestion_api_orchestrator`** and trigger it manually
    * This process will connect with `rag-core` to initiate cleaning, chunking, and vector storage in **Qdrant**
 
 ### 4. Queries and Evaluation
