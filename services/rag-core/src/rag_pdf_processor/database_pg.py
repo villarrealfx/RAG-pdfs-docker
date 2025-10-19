@@ -21,7 +21,8 @@ class QdrantVectorStore:
                 port=port,
                 timeout=10.0
             )
-            self.collection_name = "retrieval_context-hybrid"  # ← Nombre de la colección híbrida
+            self.collection_name = "chunks-hybrid"  # ← Nombre de la colección híbrida
+            
             self.embedding_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")  # ← Modelo para generar embeddings
             
             # Crear colección híbrida
