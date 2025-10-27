@@ -151,7 +151,7 @@ If you have questions, suggestions, or want to collaborate on the project, you c
 # Images
 
 ### "Pipeline orchestration example with Airflow PDF files"
-![Verificación de Archivos](./images/airflo_inyection_3.png )
+![Verificación de Archivos](./images/airflow_inyection_3.png )
 <video src="./images/airflow_inicio.mp4" width="800" height="600" controls></video>
 
 ### "Example of Chat interaction between question and answer and context chunks"
